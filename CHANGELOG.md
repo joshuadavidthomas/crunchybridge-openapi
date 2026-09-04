@@ -18,6 +18,18 @@ and this project attempts to adhere to [Semantic Versioning](https://semver.org/
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Fixed
+
+- Allow `null` in Team response `billing_address`, as observed in an authenticated response. The update request still requires an address object when that field is supplied.
+
+### Added
+
+- Seven sanitized authenticated response fixtures, validated offline against the bundled response schemas. Coverage includes Team, active Team Members, Events, and empty Cluster and Network lists.
+- Executor import evidence for all 84 operations and eight successful authenticated read operations, including PEM certificate handling. Approval enforcement and cluster provisioning remain untested.
+- TypeScript and Zod regression checks for nullable Team billing addresses.
+
 ## [0.1.0]
 
 First public preview. All documented operations are authored, but authenticated
@@ -35,5 +47,6 @@ See [SPEC.md](SPEC.md) for documentation conflicts and remaining checks.
 - Compact anonymous observations for five public success operations and one authenticated endpoint's `401` response.
 - MIT license.
 
-[unreleased]: https://github.com/joshuadavidthomas/crunchybridge-openapi/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/joshuadavidthomas/crunchybridge-openapi/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/tag/v0.1.1
 [0.1.0]: https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/tag/v0.1.0

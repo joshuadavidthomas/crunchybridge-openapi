@@ -12,6 +12,7 @@ import {
   zEid,
   zMetricView,
   zQueryCreateRequest,
+  zTeam,
 } from "../../.generated/hey-api/zod.gen.js";
 
 const certificateTypeCheck: GetTeamCertificateResponse = "-----BEGIN CERTIFICATE-----";
@@ -54,5 +55,19 @@ assert(!zClusterBackupToken.safeParse({
   team_id: "q7dvmz3ukfh5tmg4hy2tqzvama",
   type: "gcs",
 }).success, "GCS backup token without credentials accepted");
+
+const teamWithNoBillingAddress = {
+  id: "q7dvmz3ukfh5tmg4hy2tqzvama",
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+  default_role_flavor: "read",
+  is_default: false,
+  name: "example",
+  support_tier: "standard",
+  billing_address: null,
+};
+assert(zTeam.safeParse(teamWithNoBillingAddress).success, "team with null billing address rejected");
+assert(!zTeam.safeParse({ ...teamWithNoBillingAddress, billing_address: {} }).success,
+  "team with incomplete billing address accepted");
 
 void certificateTypeCheck;

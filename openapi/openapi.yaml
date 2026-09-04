@@ -2,7 +2,7 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Crunchy Bridge API
-  version: 0.1.0
+  version: 0.1.1
   summary: An unofficial description of the Crunchy Bridge API.
   description: |
     Use the Crunchy Bridge API to manage accounts, teams, clusters, and

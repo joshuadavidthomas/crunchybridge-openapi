@@ -9,8 +9,8 @@
 | Documented operations | 84 |
 | Operations authored | 84 |
 | Unauthenticated success operations observed | 5 |
-| Authenticated operations contract-tested | 0 |
-| Current source version | `0.1.0` |
+| Authenticated operations contract-tested | 7 |
+| Current source version | `0.1.1` |
 
 ## How to use this file
 
@@ -34,7 +34,7 @@ An operation is complete when it has:
 7. A note in this file for every unresolved conflict or undocumented shape.
 8. A clean Redocly lint and bundle run.
 
-A contract test is a separate claim. Authoring an operation does not imply that a live API response has confirmed it.
+A contract test is a separate claim. Authoring an operation does not imply that a live API response has confirmed it. The seven current authenticated checks validate sanitized response structures against the bundle. They preserve nulls and field presence, but use synthetic scalar values and omit event snapshots. Empty cluster and network lists do not validate item schemas. The certificate read has separate manual evidence and is not included in that count.
 
 ## Goal
 
@@ -170,8 +170,8 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 - Publish previews through GitHub releases in `joshuadavidthomas/crunchybridge-openapi`, with notes from the root Keep a Changelog-style `CHANGELOG.md`.
 - Attach the generated `openapi.yaml` to each versioned release; do not commit it.
 - Use the owner's existing GitGuardian integration rather than adding a second secret scanner. Observe its remote result before claiming a scan passed.
-- Executor is the first agent consumer. The owner can import the release URL into their personal instance; this session currently exposes no Executor control tools.
-- Start live verification with read-only requests against exact owner-approved non-production resources. Credentials are not yet configured.
+- Executor is the first agent consumer. The owner imported `v0.1.0` and configured authentication; this session can now call the integration. All 84 operations have catalog entries and readable descriptors.
+- Live verification is limited to the exact owner-approved test team on a work account. Existing resources remain read-only. The team currently has no clusters or networks; do not substitute resources from another team.
 - Treat $2 total as the ceiling for this initial sanity-check session. The owner mentioned $5 as an expectation, not an additional approved budget. No billed or disruptive operation may run before exact disposable resource IDs, estimated cost, and cleanup steps are recorded. This limit is a test policy, not a provider-enforced billing cap.
 
 ### Generated files
@@ -214,18 +214,18 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 | Account | 2 | 2 | 0 |
 | Certificates | 1 | 1 | 0 |
 | Changelogs | 2 | 2 | 0 |
-| Events | 2 | 2 | 0 |
+| Events | 2 | 2 | 2 |
 | Providers | 1 | 1 | 0 |
 | Postgres versions | 2 | 2 | 0 |
-| Teams | 5 | 5 | 0 |
-| Team members | 5 | 5 | 0 |
-| Networks | 3 | 3 | 0 |
+| Teams | 5 | 5 | 1 |
+| Team members | 5 | 5 | 2 |
+| Networks | 3 | 3 | 1 |
 | Network firewall rules | 5 | 5 | 0 |
 | Deprecated cluster firewall rules | 4 | 4 | 0 |
 | Network peerings | 4 | 4 | 0 |
 | Private links | 3 | 3 | 0 |
 | Private-link connections | 3 | 3 | 0 |
-| Clusters | 16 | 16 | 0 |
+| Clusters | 16 | 16 | 1 |
 | Cluster backups | 2 | 2 | 0 |
 | Cluster loggers | 5 | 5 | 0 |
 | Cluster replicas | 2 | 2 | 0 |
@@ -234,7 +234,7 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 | Metric views | 1 | 1 | 0 |
 | Postgres roles | 5 | 5 | 0 |
 | Queries | 1 | 1 | 0 |
-| Total | 84 | 84 | 0 |
+| Total | 84 | 84 | 7 |
 
 ## API coverage checklist
 
@@ -272,6 +272,7 @@ Source: <https://docs.crunchybridge.com/api/certificate>
 - [x] `GET /teams/{team_id}.pem` — `getTeamCertificate` (`200`).
 - [x] Model `application/pem-certificate-chain` as a string response rather than JSON.
 - [x] Verify that generated TypeScript preserves the `.pem` path suffix and types the PEM media body as a string.
+- [x] Observe an authenticated Executor read returning `200`, `application/pem-certificate-chain`, and a PEM-prefixed string. Certificate bytes and cryptographic validity were not checked into fixtures.
 
 ### Changelogs
 
@@ -563,7 +564,8 @@ Source: <https://docs.crunchybridge.com/api/team>
 - [x] Mark reads sensitive, deletion destructive, and access/billing/support updates disruptive, sensitive, and potentially cost-bearing.
 - [x] Record the create/update naming drift around the deprecated automatic-SSO default role field.
 - [ ] Clarify team deletion behavior when provisioned clusters exist.
-- [ ] Confirm `is_personal`, nullable `automatic_sso_join`, null update semantics, and empty PATCH behavior with a disposable team.
+- [x] Capture an authenticated Team fixture with `is_personal` present, `automatic_sso_join: null`, and `billing_address: null`; correct response billing-address nullability without changing the update request.
+- [ ] Confirm null update semantics and empty PATCH behavior with a disposable team.
 - [ ] Resolve `default_role_flavor` prose that omits the declared `nologin` enum value.
 
 ### Team members
@@ -696,7 +698,7 @@ Exit gate:
 
 ### Phase 2: low-risk reference and identity resources
 
-Status: in progress; all operations are authored, five public success responses are confirmed, and authenticated Team, Team Member, and Certificate evidence remains blocked on credentials.
+Status: in progress; all operations are authored. Authenticated Team, active Team Member, and Certificate reads now have evidence. Account-wide Team listing is outside the approved work-account scope; invitation and SSO-enabled variants remain unobserved.
 
 Resources: Certificates, Changelogs, Providers, Postgres versions, Teams, and Team members.
 
@@ -714,7 +716,7 @@ Exit gate:
 
 ### Phase 3: network resources
 
-Status: in progress; all 22 operations are authored, while authenticated response validation and consumer approval-policy checks remain open.
+Status: in progress; all 22 operations are authored. An authenticated empty NetworkList fixture passes, but the approved team has no networks for item checks. Other network response and consumer approval-policy checks remain open.
 
 Resources: Networks, network firewall rules, deprecated cluster firewall rules, network peerings, private links, and private-link connections.
 
@@ -734,7 +736,7 @@ Exit gate:
 
 ### Phase 4: cluster core
 
-Status: in progress; all 16 operations are authored, while authenticated list/get/status fixtures and agent-consumer checks remain open.
+Status: in progress; all 16 operations are authored. An authenticated empty ClusterList fixture passes and Executor preserves representative request shapes. No clusters exist in the approved team for get/status fixtures; approval enforcement remains unverified.
 
 Resources: Cluster list/create/get/update/delete/status plus cluster actions.
 
@@ -792,7 +794,7 @@ Exit gate:
 
 ### Phase 7: contract verification
 
-Status: in progress; compact anonymous observations are checked against operation security and statuses, while authenticated fixtures and response-schema contract tests remain open.
+Status: in progress; seven sanitized authenticated response fixtures validate offline against their bundled GET schemas. Certificate media handling has separate manual evidence. Remaining read coverage, automated live capture, and opt-in mutation suites are still open.
 
 Work:
 
@@ -811,7 +813,7 @@ Exit gate:
 
 ### Phase 8: generated consumer checks
 
-Status: in progress; `openapi-typescript`, `openapi-fetch`, and Hey API TypeScript/Zod outputs compile, while agent-runtime imports and approval-policy proofs remain open.
+Status: in progress; generated clients compile, Executor imports all 84 operations, and eight distinct authenticated read operations succeed using host-side credentials. Descriptor checks preserve representative required inputs, nulls, enums, and arrays. Runtime constraint validation, approval-policy enforcement, and Cloudflare integration remain unverified.
 
 Work:
 
@@ -867,6 +869,7 @@ npm run lint
 npm run bundle
 npm run lint:bundle
 npm run check:bundle
+npm run check:fixtures
 npm run check:generated
 npm run check:hey-api
 ```
@@ -890,7 +893,7 @@ npm run check:hey-api
 - [x] Generate and compile Hey API's TypeScript and Zod outputs; use Ajv 2020 for semantic keywords the Zod generator cannot preserve.
 - [ ] Report breaking changes against the last released bundle.
 - [ ] Run secret scanning on the repository and fixtures.
-- [ ] Run offline contract tests against sanitized fixtures.
+- [x] Run offline contract tests against sanitized fixtures (seven operations; empty collections and synthetic scalars have explicit coverage limits).
 - [ ] Run authenticated read-only tests only in an explicitly configured environment.
 - [ ] Run mutation tests only with disposable resource IDs and opt-in flags.
 
@@ -977,7 +980,7 @@ Resolve these before the named phase exits:
 
 - [x] Before Phase 0 exits: choose the repository and spec license (MIT).
 - [ ] Before `1.0.0`: settle the access-token default and maximum lifetime.
-- [ ] Before Phase 2 exits: choose a sanitized fixture format and redaction procedure.
+- [x] Before Phase 2 exits: choose a sanitized fixture format and redaction procedure (`tests/contract/fixtures.yaml` and `tests/contract/README.md`; sanitize before emitting from Executor).
 - [ ] Before Phase 7 starts: provide or create a dedicated test team and define its spending limit.
 - [x] Before Phase 8 exits: choose the TypeScript generator and primary agent integration path (Hey API interoperability checks and Executor first).
 - [x] Before Phase 9 exits: choose the stable publication URL and release version policy (GitHub release assets at `/releases/download/v<version>/openapi.yaml`, starting with a `0.1.0` preview; `1.0.0` still requires the stable-release checks).
@@ -998,7 +1001,7 @@ Version `1.0.0` requires all of the following:
 - [ ] Read-only contract checks cover every endpoint that a test account can reach.
 - [ ] Untested writes and destructive operations are listed with their safety reason.
 - [ ] A generated TypeScript client and validator set compile without hand edits.
-- [ ] The chosen agent integration performs an authenticated read-only call with host-side secrets.
+- [x] The chosen agent integration performs an authenticated read-only call with host-side secrets (Executor; eight distinct scoped read operations).
 - [ ] Approval policy blocks unattended destructive operations.
 - [ ] A tagged release publishes an immutable bundle.
 - [ ] Breaking-change and docs-drift checks run in CI or on a schedule.
@@ -1006,6 +1009,15 @@ Version `1.0.0` requires all of the following:
 - [x] The repository has a license.
 
 ## Progress log
+
+### Authenticated Executor checks
+
+- Confirmed that the imported `v0.1.0` catalog contains all 84 operations with unique names and readable input/output descriptors. Inspected representative create, query, role, list, and certificate shapes without invoking writes.
+- Used only the owner-approved work-account test team. Authenticated GETs for Team, Cluster list, Network list, Team Member list/get, Event list/get, and Team Certificate returned `200`. The team has no clusters or networks. No mutation ran and no resource was created.
+- Sanitized seven JSON responses inside Executor before output. Added fixtures and an offline Ajv test runner that selects response schemas by operation, status, and media type. Certificate evidence records string/media handling without storing its bytes.
+- Reproduced the `getTeam` fixture failure on `billing_address: null` against `v0.1.0`, then corrected only the Team response schema. Added valid-object and invalid-object cases plus TypeScript and Zod regressions. Null update input remains unsupported pending evidence.
+- Added `evidence/executor-smoke.yaml` with import checks, read results, and limits. Approval enforcement is still untested; no destructive call was attempted as a policy probe.
+- Ignored the owner's local `.mcp.json` without reading or changing its contents.
 
 ### Publication setup
 

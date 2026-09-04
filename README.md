@@ -10,9 +10,9 @@ The spec authors all 84 documented operations across the 24 public API resource 
 
 ## Use the bundle
 
-Import the versioned [v0.1.0 bundle](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/download/v0.1.0/openapi.yaml) into an OpenAPI consumer. The bundle contains all schemas; the modular source entry point requires the rest of `openapi/`.
+Import the versioned [v0.1.1 bundle](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/download/v0.1.1/openapi.yaml) into an OpenAPI consumer. The bundle contains all schemas; the modular source entry point requires the rest of `openapi/`.
 
-This is a preview. Authenticated responses and Executor integration have not yet been verified. Start with read-only operations. Configure bearer credentials in the consumer's secret storage, not in the YAML or prompts. Risk extensions do not enforce approvals themselves; keep writes disabled until the consumer's policy is tested. The spec points to the real Crunchy Bridge API.
+This is a preview. Executor imports all 84 operations, and eight authenticated read operations have succeeded on an approved test team. Seven sanitized JSON response fixtures now validate offline; empty cluster and network lists do not verify resource item schemas. See [the smoke report](evidence/executor-smoke.yaml) for limits. Start with read-only operations. Configure bearer credentials in the consumer's secret storage, not in the YAML or prompts. Risk extensions do not enforce approvals themselves; keep writes disabled until the consumer's policy is tested. The spec points to the real Crunchy Bridge API.
 
 [CHANGELOG.md](CHANGELOG.md) records release changes.
 
@@ -48,9 +48,12 @@ npm run lint
 npm run bundle
 npm run lint:bundle
 npm run check:bundle
+npm run check:fixtures
 npm run check:generated
 npm run check:hey-api
 ```
+
+[Response fixture checks](tests/contract/README.md) describes the offline tests and the procedure for capturing sanitized evidence. No live requests run in `npm test`.
 
 ## Contribute and release
 

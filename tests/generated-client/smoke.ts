@@ -103,6 +103,9 @@ type RoleUpsertCreatedResponse =
   paths["/clusters/{cluster_id}/roles/{role_name}"]["put"]["responses"][201];
 
 const certificateTypeCheck: TeamCertificate = "-----BEGIN CERTIFICATE-----";
+const nullableBillingAddressTypeCheck: components["schemas"]["Team"]["billing_address"] = null;
+// @ts-expect-error A non-null billing address still requires city, country, and line_1.
+const invalidBillingAddressTypeCheck: components["schemas"]["Team"]["billing_address"] = {};
 const accessTokenRequestTypeCheck: AccessTokenCreateRequest = {
   client_secret: "REDACTED_API_KEY_SECRET",
   expires_in: "1w",
@@ -182,6 +185,8 @@ const invalidRedactedRolePassword: components["schemas"]["PostgresRoleList"]["ro
 
 void authoredOperations;
 void certificateTypeCheck.toUpperCase();
+void nullableBillingAddressTypeCheck;
+void invalidBillingAddressTypeCheck;
 void accessTokenRequestTypeCheck;
 void clusterCreateTypeCheck;
 void clusterForkTypeCheck;

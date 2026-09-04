@@ -130,7 +130,10 @@ Team:
         - $ref: '#/TeamAutomaticSSOJoin'
         - type: "null"
     billing_address:
-      $ref: '#/TeamBillingAddress'
+      description: Billing address. Authenticated responses may return null.
+      oneOf:
+        - $ref: '#/TeamBillingAddress'
+        - type: "null"
     billing_email:
       type:
         - string

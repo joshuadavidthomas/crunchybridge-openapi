@@ -1,0 +1,125 @@
+observed_on: 2026-09-04
+source: authenticated-executor-read-only
+imported_version: 0.1.0
+sanitization: >-
+  Sanitized inside Executor before output. Preserves field presence, nulls,
+  object structure, and array lengths. EIDs, UUIDs, timestamps, names, emails,
+  IPs, cursors, and free text are synthetic. Booleans are replaced with false.
+  Public role/flavor/support-tier enums are preserved. Event data and previous
+  property objects are replaced with empty objects. These fixtures test response
+  structure, not original scalar values, identity relationships, or event snapshots.
+fixtures:
+  - operationId: getTeam
+    status: 200
+    contentType: application/json
+    body:
+      id: q7dvmz3ukfh5tmg4hy2tqzvama
+      automatic_sso_join: null
+      billing_address: null
+      billing_email: null
+      billing_email_verified: false
+      created_at: "2026-01-01T00:00:00Z"
+      default_role_flavor: read
+      enforce_mfa: false
+      enforce_sso: false
+      invoice_note: null
+      is_default: false
+      is_personal: false
+      name: redacted
+      payment_method: null
+      role: admin
+      support_tier: standard
+      technical_email_verified: false
+      updated_at: "2026-01-01T00:00:00Z"
+  - operationId: listClusters
+    status: 200
+    contentType: application/json
+    body:
+      has_more: false
+      next_cursor: null
+      clusters: []
+  - operationId: listNetworks
+    status: 200
+    contentType: application/json
+    body:
+      has_more: false
+      next_cursor: null
+      networks: []
+  - operationId: listTeamMembers
+    status: 200
+    contentType: application/json
+    body:
+      has_more: false
+      next_cursor: null
+      team_members:
+        - id: q7dvmz3ukfh5tmg4hy2tqzvama
+          account:
+            id: q7dvmz3ukfh5tmg4hy2tqzvama
+            email: person@example.invalid
+            name: redacted
+            access_groups: []
+            has_password: false
+            has_sso: false
+            multi_factor_enabled: false
+          account_id: q7dvmz3ukfh5tmg4hy2tqzvama
+          email: person@example.invalid
+          name: redacted
+          role: admin
+          team_id: q7dvmz3ukfh5tmg4hy2tqzvama
+  - operationId: getTeamMember
+    status: 200
+    contentType: application/json
+    body:
+      id: q7dvmz3ukfh5tmg4hy2tqzvama
+      account:
+        id: q7dvmz3ukfh5tmg4hy2tqzvama
+        email: person@example.invalid
+        name: redacted
+        access_groups: []
+        has_password: false
+        has_sso: false
+        multi_factor_enabled: false
+      account_id: q7dvmz3ukfh5tmg4hy2tqzvama
+      email: person@example.invalid
+      name: redacted
+      role: admin
+      team_id: q7dvmz3ukfh5tmg4hy2tqzvama
+  - operationId: listEvents
+    status: 200
+    contentType: application/json
+    body:
+      has_more: false
+      next_cursor: redacted
+      events:
+        - id: q7dvmz3ukfh5tmg4hy2tqzvama
+          kind: redacted
+          object_id: q7dvmz3ukfh5tmg4hy2tqzvama
+          object_kind: redacted
+          actor_email: person@example.invalid
+          actor_id: q7dvmz3ukfh5tmg4hy2tqzvama
+          actor_ip: 192.0.2.1
+          cluster_id: null
+          created_at: "2026-01-01T00:00:00Z"
+          data: {}
+          description: redacted
+          previous_properties: null
+          request_id: 00000000-0000-4000-8000-000000000000
+          team_id: q7dvmz3ukfh5tmg4hy2tqzvama
+  - operationId: getEvent
+    status: 200
+    contentType: application/json
+    body:
+      id: q7dvmz3ukfh5tmg4hy2tqzvama
+      kind: redacted
+      object_id: q7dvmz3ukfh5tmg4hy2tqzvama
+      object_kind: redacted
+      actor_email: person@example.invalid
+      actor_id: q7dvmz3ukfh5tmg4hy2tqzvama
+      actor_ip: 192.0.2.1
+      cluster_id: null
+      created_at: "2026-01-01T00:00:00Z"
+      data: {}
+      description: redacted
+      previous_properties: null
+      request_id: 00000000-0000-4000-8000-000000000000
+      team_id: q7dvmz3ukfh5tmg4hy2tqzvama
