@@ -833,7 +833,7 @@ Exit gate:
 
 ### Phase 9: release and drift control
 
-Status: in progress; MIT licensing, a root changelog, and the GitHub release upload workflow are configured. Publication, breaking-change reports, and scheduled drift checks remain open.
+Status: in progress; the `v0.1.0` preview and its standalone bundle are published. Breaking-change reports, scheduled drift checks, and the remaining stable-release checks are still open.
 
 Work:
 
@@ -1009,6 +1009,9 @@ Version `1.0.0` requires all of the following:
 
 ### Publication setup
 
+- Published the [v0.1.0 preview](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/tag/v0.1.0) from `121aa2ca1937050cc8187e22a9d4701d584cb1e8`, using the `0.1.0` changelog section as release notes.
+- The [release workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33928088616) passed, including version verification, all contract checks, and upload of `openapi.yaml`.
+- Downloaded the public [versioned bundle](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/download/v0.1.0/openapi.yaml) without authentication and confirmed it matches the local build: SHA-256 `d946bbe923d666075f974d484a59ecbf06fac064146cc025f88579bc175ffe6c` (206,136 bytes).
 - Pushed the initial contract to `main`; the [first remote OpenAPI workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33927904977) passed. Updated the SHA-pinned checkout/setup-node actions after that run reported their old Node runtime as deprecated.
 - The bundle checker now requires matching package/OpenAPI versions, a matching changelog section, and MIT license metadata.
 - GitGuardian is owner-managed. No GitGuardian result appeared in the initial commit's GitHub check/status API; its scan result remains unverified.
