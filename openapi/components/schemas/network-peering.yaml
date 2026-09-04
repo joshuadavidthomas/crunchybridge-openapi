@@ -1,0 +1,64 @@
+PeeringStatus:
+  type: string
+  enum:
+    - active
+    - creating
+    - deleting
+    - failed
+
+Peering:
+  type: object
+  required:
+    - id
+    - network_id
+    - network_identifier
+    - peer_identifier
+    - status
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    cidr4:
+      type:
+        - string
+        - "null"
+      description: IPv4 CIDR of the peer, if available.
+    name:
+      type:
+        - string
+        - "null"
+      description: Provider-supplied peering name, if available.
+    network_id:
+      $ref: ./common.yaml#/EID
+    network_identifier:
+      type: string
+      description: Provider identifier for the Crunchy Bridge network.
+    peer_identifier:
+      type: string
+      description: Provider identifier for the customer network.
+    status:
+      $ref: '#/PeeringStatus'
+  additionalProperties: true
+
+PeeringList:
+  type: object
+  description: |
+    Network peerings. The list endpoint accepts cursor inputs but does not
+    document `has_more` or `next_cursor` in this response.
+  required:
+    - peerings
+  properties:
+    peerings:
+      type: array
+      items:
+        $ref: '#/Peering'
+  additionalProperties: true
+
+PeeringCreateRequest:
+  type: object
+  required:
+    - peer_identifier
+  properties:
+    peer_identifier:
+      type: string
+      description: Provider identifier for the customer network to peer.
+  additionalProperties: false

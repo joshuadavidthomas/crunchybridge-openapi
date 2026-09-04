@@ -1,0 +1,135 @@
+AccessGroupMinimal:
+  type: object
+  required:
+    - id
+    - is_system
+    - name
+    - team_id
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    is_system:
+      type: boolean
+    name:
+      type: string
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+AccountTeamMember:
+  type: object
+  required:
+    - email
+    - has_password
+    - has_sso
+    - multi_factor_enabled
+    - name
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    access_groups:
+      description: Access groups assigned to the account, if available.
+      oneOf:
+        - type: array
+          items:
+            $ref: '#/AccessGroupMinimal'
+        - type: "null"
+    email:
+      type: string
+    has_password:
+      type: boolean
+    has_sso:
+      type: boolean
+    multi_factor_enabled:
+      type: boolean
+    name:
+      type: string
+  additionalProperties: true
+
+TeamMember:
+  type: object
+  description: |
+    A team membership or invitation. Invited members may not yet have an
+    account ID or nested account.
+  required:
+    - email
+    - role
+    - team_id
+  properties:
+    id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    account:
+      oneOf:
+        - $ref: '#/AccountTeamMember'
+        - type: "null"
+    role:
+      description: Legacy team role assigned to the member.
+      oneOf:
+        - $ref: ./team.yaml#/TeamRole
+        - type: "null"
+    team_id:
+      $ref: ./common.yaml#/EID
+    account_id:
+      description: Deprecated. Use `account.id`.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+      deprecated: true
+    email:
+      type: string
+      deprecated: true
+      description: Deprecated. Use `account.email` when an account is present.
+    name:
+      type:
+        - string
+        - "null"
+      deprecated: true
+      description: Deprecated. Use `account.name` when an account is present.
+  additionalProperties: true
+
+TeamMemberList:
+  allOf:
+    - $ref: ./pagination.yaml#/CursorPage
+    - type: object
+      required:
+        - team_members
+      properties:
+        team_members:
+          type: array
+          items:
+            $ref: '#/TeamMember'
+
+TeamMemberCreateRequest:
+  type: object
+  description: |
+    Adds or invites a member. Leave every field blank to join through an
+    enabled automatic SSO flow.
+  properties:
+    access_group_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    email:
+      type:
+        - string
+        - "null"
+    role:
+      description: Deprecated. Prefer `access_group_id`.
+      oneOf:
+        - $ref: ./team.yaml#/TeamRole
+        - type: "null"
+      deprecated: true
+  additionalProperties: false
+
+TeamMemberUpdateRequest:
+  type: object
+  required:
+    - role
+  properties:
+    role:
+      oneOf:
+        - $ref: ./team.yaml#/TeamRole
+        - type: "null"
+  additionalProperties: false

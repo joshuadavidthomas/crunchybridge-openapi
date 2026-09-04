@@ -1,0 +1,724 @@
+ClusterState:
+  type: string
+  enum:
+    - creating
+    - creation_failed
+    - destroying
+    - failed
+    - finalizing
+    - ready
+    - replaying
+    - restarting
+    - restoring
+    - resuming
+    - starting
+    - suspended
+    - suspending
+
+ClusterOperation:
+  type: object
+  required:
+    - flavor
+    - state
+  properties:
+    flavor:
+      type: string
+      enum:
+        - auto_resize
+        - ha_change
+        - maintenance
+        - major_version_upgrade
+        - periodic_maintenance
+        - rekey
+        - resize
+    starting_from:
+      type:
+        - string
+        - "null"
+      format: date-time
+    state:
+      type: string
+      enum:
+        - canceling
+        - creating
+        - creation_failed
+        - destroying
+        - disabling_ha
+        - enabling_ha
+        - failing_over
+        - finalizing
+        - in_progress
+        - ready
+        - replaying
+        - restarting
+        - restoring
+        - resuming
+        - starting
+        - suspended
+        - suspending
+        - waiting_for_ha_standby
+  additionalProperties: true
+
+ClusterDiskUsage:
+  type: object
+  required:
+    - disk_available_mb
+    - disk_total_size_mb
+    - disk_used_mb
+  properties:
+    disk_available_mb:
+      type: integer
+      format: int64
+    disk_total_size_mb:
+      type: integer
+      format: int64
+    disk_used_mb:
+      type: integer
+      format: int64
+  additionalProperties: true
+
+ClusterVariableBackups:
+  type: object
+  properties:
+    daily:
+      type: integer
+      format: int32
+    monthly:
+      type: integer
+      format: int32
+    weekly:
+      type: integer
+      format: int32
+    yearly:
+      type: integer
+      format: int32
+  additionalProperties: true
+
+ClusterGroup:
+  type: object
+  required:
+    - id
+    - kind
+    - name
+    - network_id
+    - provider_id
+    - region_id
+    - team_id
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    clusters:
+      type: array
+      items:
+        $ref: '#/Cluster'
+    kind:
+      type: string
+      enum:
+        - citus
+        - postgres
+    name:
+      type: string
+    network_id:
+      $ref: ./common.yaml#/EID
+    provider_id:
+      oneOf:
+        - type: string
+          enum:
+            - aws
+            - azure
+            - gcp
+        - type: "null"
+    region_id:
+      type: string
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+Cluster:
+  type: object
+  required:
+    - created_at
+    - id
+    - is_ha
+    - is_protected
+    - is_suspended
+    - major_version
+    - memory
+    - name
+    - plan_id
+    - postgres_version_id
+    - provider_id
+    - region_id
+    - storage
+    - team_id
+    - updated_at
+    - variable_backups
+    - vcpu
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    cluster_group:
+      $ref: '#/ClusterGroup'
+    created_at:
+      type: string
+      format: date-time
+    disk_usage:
+      deprecated: true
+      description: Deprecated. Disk usage may be null before collection.
+      oneOf:
+        - $ref: '#/ClusterDiskUsage'
+        - type: "null"
+    environment:
+      oneOf:
+        - type: string
+          enum:
+            - production
+        - type: "null"
+    expires_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+    host:
+      type: string
+    is_ha:
+      type: boolean
+    is_protected:
+      type: boolean
+    is_suspended:
+      type: boolean
+    keychain_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    maintenance_window_start:
+      type:
+        - integer
+        - "null"
+      format: int32
+    major_version:
+      type: integer
+      format: int32
+    memory:
+      type: number
+      format: float
+    name:
+      type: string
+    network_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    next_periodic_maintenance_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+    ongoing_operations:
+      type:
+        - array
+        - "null"
+      items:
+        $ref: '#/ClusterOperation'
+    parent_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    periodic_maintenance_frequency:
+      type: integer
+      format: int32
+    plan_id:
+      type: string
+    postgres_version_id:
+      $ref: ./common.yaml#/EID
+    provider_id:
+      oneOf:
+        - type: string
+          enum:
+            - aws
+            - azure
+            - gcp
+        - type: "null"
+    region_id:
+      type: string
+    replicas:
+      type:
+        - array
+        - "null"
+      items:
+        $ref: '#/Cluster'
+    state:
+      oneOf:
+        - $ref: '#/ClusterState'
+        - type: "null"
+    storage:
+      type: integer
+      format: int32
+    tailscale_active:
+      type: boolean
+    team_id:
+      $ref: ./common.yaml#/EID
+    updated_at:
+      type: string
+      format: date-time
+    variable_backups:
+      $ref: '#/ClusterVariableBackups'
+    vcpu:
+      type: number
+      format: float
+    zone:
+      type:
+        - string
+        - "null"
+    cluster_id:
+      deprecated: true
+      description: Deprecated. Use `parent_id`.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    cpu:
+      type: integer
+      format: int64
+      deprecated: true
+      description: Deprecated. Use `vcpu`.
+  additionalProperties: true
+
+ClusterList:
+  type: object
+  required:
+    - clusters
+    - has_more
+  properties:
+    clusters:
+      type: array
+      items:
+        $ref: '#/Cluster'
+    has_more:
+      type: boolean
+    next_cursor:
+      type:
+        - string
+        - "null"
+  additionalProperties: true
+
+ClusterStatusUpgrade:
+  type: object
+  required:
+    - cluster_id
+    - operations
+    - team_id
+  properties:
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    operations:
+      type: array
+      items:
+        $ref: '#/ClusterOperation'
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+ClusterStatus:
+  type: object
+  required:
+    - state
+  properties:
+    disk_usage:
+      oneOf:
+        - $ref: '#/ClusterDiskUsage'
+        - type: "null"
+    oldest_backup_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+    oldest_backup_lsn:
+      type:
+        - string
+        - "null"
+    ongoing_upgrade:
+      oneOf:
+        - $ref: '#/ClusterStatusUpgrade'
+        - type: "null"
+    state:
+      oneOf:
+        - $ref: '#/ClusterState'
+        - type: "null"
+  additionalProperties: true
+
+Message:
+  type: object
+  required:
+    - message
+  properties:
+    message:
+      type: string
+  additionalProperties: true
+
+ConfigurationParameterInput:
+  type: object
+  required:
+    - name
+  properties:
+    name:
+      type: string
+    value:
+      type:
+        - string
+        - "null"
+  additionalProperties: false
+
+ClusterCreateRole:
+  type: object
+  required:
+    - name
+    - password_scram_sha256
+  properties:
+    name:
+      type: string
+    password_scram_sha256:
+      type: string
+      description: SCRAM-SHA-256 password verifier.
+  additionalProperties: false
+
+ClusterCreateRequest:
+  type: object
+  required:
+    - name
+    - plan_id
+    - team_id
+  allOf:
+    - not:
+        required: [network_cidr4, network_id]
+        properties:
+          network_cidr4: { type: string }
+          network_id: { $ref: ./common.yaml#/EID }
+    - not:
+        required: [firewall_mode, network_cidr4]
+        properties:
+          firewall_mode: { type: string }
+          network_cidr4: { type: string }
+    - not:
+        required: [firewall_mode, network_id]
+        properties:
+          firewall_mode: { type: string }
+          network_id: { $ref: ./common.yaml#/EID }
+    - not:
+        required: [network_id, provider_id]
+        properties:
+          network_id: { $ref: ./common.yaml#/EID }
+          provider_id: { type: string }
+  properties:
+    name:
+      type: string
+    plan_id:
+      type: string
+    team_id:
+      $ref: ./common.yaml#/EID
+    cluster_group_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    environment:
+      oneOf:
+        - type: string
+          enum:
+            - production
+        - type: "null"
+    expires_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+      description: Time when the cluster may be reaped with data loss.
+    firewall_mode:
+      type:
+        - string
+        - "null"
+      enum:
+        - allow_all
+        - deny_all
+        - null
+    is_ha:
+      type: boolean
+    keychain_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    maintenance_window_start:
+      type:
+        - integer
+        - "null"
+      format: int32
+      minimum: 0
+      maximum: 23
+    network_cidr4:
+      type:
+        - string
+        - "null"
+      description: Private IPv4 CIDR with prefix length no longer than 20 bits.
+    network_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    parameters:
+      type: array
+      items:
+        $ref: '#/ConfigurationParameterInput'
+    postgres_version_id:
+      oneOf:
+        - type: integer
+          format: int32
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    provider_id:
+      type:
+        - string
+        - "null"
+      enum:
+        - aws
+        - azure
+        - gcp
+        - null
+    region_id:
+      type:
+        - string
+        - "null"
+    roles:
+      type: array
+      items:
+        $ref: '#/ClusterCreateRole'
+    snowflake_entity_id:
+      type:
+        - integer
+        - "null"
+      format: int64
+    storage:
+      type: integer
+      format: int32
+    major_version:
+      type:
+        - integer
+        - "null"
+      format: int32
+      deprecated: true
+      description: Deprecated. Use `postgres_version_id`.
+  additionalProperties: false
+
+ClusterDashboardSettings:
+  type: object
+  properties:
+    heroku_database_id:
+      type:
+        - string
+        - "null"
+      description: An empty string clears this setting.
+    heroku_migration_complete:
+      type:
+        - boolean
+        - "null"
+  additionalProperties: false
+
+ClusterUpdateVariableBackups:
+  type: object
+  properties:
+    daily:
+      type:
+        - integer
+        - "null"
+      format: int32
+    monthly:
+      type:
+        - integer
+        - "null"
+      format: int32
+    weekly:
+      type:
+        - integer
+        - "null"
+      format: int32
+    yearly:
+      type:
+        - integer
+        - "null"
+      format: int32
+  additionalProperties: false
+
+ClusterUpdateRequest:
+  type: object
+  properties:
+    cluster_group_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    dashboard_settings:
+      $ref: '#/ClusterDashboardSettings'
+    environment:
+      oneOf:
+        - type: string
+          enum:
+            - ""
+            - production
+        - type: "null"
+      description: An empty string clears the environment.
+    is_protected:
+      type:
+        - boolean
+        - "null"
+    maintenance_window_start:
+      type:
+        - integer
+        - "null"
+      format: int32
+      minimum: -1
+      maximum: 23
+      description: Set to -1 to remove the maintenance window.
+    name:
+      type:
+        - string
+        - "null"
+    next_periodic_maintenance_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+    periodic_maintenance_frequency:
+      type:
+        - integer
+        - "null"
+      format: int32
+      minimum: 7
+      maximum: 365
+    variable_backups:
+      $ref: '#/ClusterUpdateVariableBackups'
+  additionalProperties: false
+
+ClusterForkRequest:
+  type: object
+  required:
+    - name
+  allOf:
+    - not:
+        required: [network_cidr4, network_id]
+        properties:
+          network_cidr4: { type: string }
+          network_id: { $ref: ./common.yaml#/EID }
+    - not:
+        required: [firewall_mode, network_cidr4]
+        properties:
+          firewall_mode: { type: string }
+          network_cidr4: { type: string }
+    - not:
+        required: [firewall_mode, network_id]
+        properties:
+          firewall_mode: { type: string }
+          network_id: { $ref: ./common.yaml#/EID }
+    - not:
+        required: [network_id, provider_id]
+        properties:
+          network_id: { $ref: ./common.yaml#/EID }
+          provider_id: { type: string }
+    - if:
+        required: [provider_id]
+        properties:
+          provider_id: { type: string }
+      then:
+        required: [plan_id, region_id]
+        properties:
+          plan_id: { type: string }
+          region_id: { type: string }
+  properties:
+    name:
+      type: string
+    firewall_mode:
+      type:
+        - string
+        - "null"
+      enum:
+        - allow_all
+        - deny_all
+        - null
+    is_ha:
+      type: boolean
+    keychain_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    network_cidr4:
+      type:
+        - string
+        - "null"
+    network_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    plan_id:
+      type:
+        - string
+        - "null"
+    provider_id:
+      type:
+        - string
+        - "null"
+      enum:
+        - aws
+        - azure
+        - gcp
+        - null
+    region_id:
+      type:
+        - string
+        - "null"
+    snowflake_entity_id:
+      type:
+        - integer
+        - "null"
+      format: int64
+    storage:
+      type:
+        - integer
+        - "null"
+      format: int32
+    target_lsn:
+      type:
+        - string
+        - "null"
+    target_time:
+      type:
+        - string
+        - "null"
+      format: date-time
+  additionalProperties: false
+
+ClusterRestartRequest:
+  type: object
+  properties:
+    service:
+      type:
+        - string
+        - "null"
+      enum:
+        - postgres
+        - server
+        - null
+      description: Omission defaults to `server`.
+  additionalProperties: false
+
+TailscaleConnectRequest:
+  type: object
+  not:
+    required: [auth_key, tailscale_oauth_client_id]
+    properties:
+      auth_key: { type: string }
+      tailscale_oauth_client_id: { $ref: ./common.yaml#/EID }
+  properties:
+    auth_key:
+      type:
+        - string
+        - "null"
+      description: Short-lived Tailscale auth key. Mutually exclusive with `tailscale_oauth_client_id`.
+    tailscale_oauth_client_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+      description: Stored Tailscale OAuth client. Mutually exclusive with `auth_key`.
+  additionalProperties: false

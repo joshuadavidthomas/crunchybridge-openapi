@@ -1,0 +1,27 @@
+XRequestId:
+  description: A UUID that identifies the request for tracing and support.
+  required: true
+  schema:
+    type: string
+    format: uuid
+
+RetryAfter:
+  description: Seconds to wait before retrying a rate-limited request.
+  required: true
+  schema:
+    type: integer
+    minimum: 0
+
+IdempotencyKey:
+  description: The idempotency key supplied with the request.
+  required: false
+  schema:
+    type: string
+    format: uuid
+
+IdempotencyReplay:
+  description: True when the API replayed a stored response for this key.
+  required: false
+  schema:
+    type: boolean
+    const: true

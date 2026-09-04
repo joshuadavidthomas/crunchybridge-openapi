@@ -1,0 +1,82 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  post:
+    operationId: createAccessToken
+    tags:
+      - Access tokens
+    summary: Create an access token
+    description: Exchanges an API key secret for an access token.
+    security: []
+    x-docs-url: https://docs.crunchybridge.com/api/access-token#create-access-token
+    x-idempotent: false
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/access-token.yaml#/AccessTokenCreateRequest
+    responses:
+      "200":
+        description: The new access token. The bearer token is returned only once.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/access-token.yaml#/AccessToken
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/AccessTokenId
+  delete:
+    operationId: destroyAccessToken
+    tags:
+      - Access tokens
+    summary: Delete an access token
+    description: Revokes an access token and returns its resource.
+    x-docs-url: https://docs.crunchybridge.com/api/access-token#destroy-access-token
+    x-destructive: true
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The revoked access token.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/access-token.yaml#/AccessToken
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

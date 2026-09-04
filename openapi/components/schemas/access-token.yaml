@@ -1,0 +1,134 @@
+AccessTokenCreateRequest:
+  type: object
+  description: Exchanges an API key secret for a short-lived access token.
+  required:
+    - client_secret
+  properties:
+    application_name:
+      type:
+        - string
+        - "null"
+      description: A caller-defined label for the access token.
+    client_id:
+      description: |
+        Deprecated. The API key's EID. The server can derive it from
+        `client_secret`, and a supplied value must match that secret.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+      deprecated: true
+    client_secret:
+      type: string
+      writeOnly: true
+      x-sensitive: true
+      description: The API key secret associated with the new access token.
+    expires_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+      description: |
+        A requested expiry time. The field table permits a time from one minute
+        to one month in the future and says omission creates a non-expiring
+        token. The page introduction instead says tokens expire after one hour
+        by default and permits at most one week. The contract does not enforce
+        either conflicting relative bound.
+    expires_in:
+      type:
+        - string
+        - "null"
+      pattern: ^[0-9]+[smhdwM]$
+      description: |
+        A duration such as `15m` or `1w`. Use either this field or `expires_at`.
+        The docs conflict on the default and maximum lifetime as described on
+        `expires_at`.
+    grant_type:
+      type: string
+      deprecated: true
+      description: |
+        Deprecated and ignored. `client_credentials` is the only supported
+        grant and is assumed when this field is omitted.
+  allOf:
+    - not:
+        properties:
+          expires_at:
+            type: string
+          expires_in:
+            type: string
+        required:
+          - expires_at
+          - expires_in
+  additionalProperties: false
+  examples:
+    - application_name: local-agent
+      client_secret: REDACTED_API_KEY_SECRET
+      expires_in: 1w
+
+AccessToken:
+  type: object
+  description: A credential issued from a Crunchy Bridge API key.
+  required:
+    - access_token
+    - account_id
+    - api_key_id
+    - application_name
+    - created_at
+    - expires_at
+    - expires_in
+    - id
+    - token_type
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    access_token:
+      type:
+        - string
+        - "null"
+      readOnly: true
+      x-sensitive: true
+      description: |
+        The bearer token. It is present only in the create response and is null
+        when another endpoint returns this resource.
+    account_id:
+      $ref: ./common.yaml#/EID
+    api_key_id:
+      $ref: ./common.yaml#/EID
+    application_name:
+      type:
+        - string
+        - "null"
+      description: The caller-defined label for the access token.
+    created_at:
+      type: string
+      format: date-time
+      description: When the access token was created.
+    expires_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+      description: |
+        When the access token expires. Null is allowed because the request field
+        table says an omitted expiry creates a non-expiring token, despite the
+        page introduction stating a one-hour default.
+    expires_in:
+      type: integer
+      minimum: 0
+      deprecated: true
+      description: Seconds until expiry. Prefer `expires_at`.
+    token_type:
+      type: string
+      enum:
+        - bearer
+      description: The authorization scheme used with the token.
+  additionalProperties: true
+  examples:
+    - access_token: REDACTED_ACCESS_TOKEN
+      account_id: qvcw4hylovgyzbwzp53bmmlhga
+      api_key_id: ryexlkxpibfang6u7374faajfe
+      application_name: local-agent
+      created_at: "2021-07-11T01:02:03Z"
+      expires_at: "2021-07-11T02:02:03Z"
+      expires_in: 3600
+      id: rizcplozgfht7lhra5lbqebiru
+      token_type: bearer

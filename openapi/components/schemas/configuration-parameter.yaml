@@ -1,0 +1,81 @@
+SupportedConfigurationParameter:
+  type: object
+  required: [category, component, description, name, parameter_name]
+  properties:
+    category: { type: string }
+    component: { type: string }
+    description: { type: string }
+    name:
+      type: string
+      description: Fully qualified `<component>:<parameter_name>` name.
+    parameter_name: { type: string }
+    enum:
+      type: array
+      items: { type: [string, "null"] }
+    max_value:
+      type: string
+      description: String because a bound may include units.
+    max_version: { type: [integer, "null"], format: int64 }
+    min_value:
+      type: string
+      description: String because a bound may include units.
+    min_version: { type: [integer, "null"], format: int64 }
+    requires_restart: { type: boolean }
+  additionalProperties: true
+
+SupportedConfigurationParameterList:
+  type: object
+  required: [parameters]
+  properties:
+    parameters:
+      type: array
+      items:
+        $ref: '#/SupportedConfigurationParameter'
+  additionalProperties: true
+
+ClusterConfigurationParameter:
+  type: object
+  required: [cluster_id, component, name, parameter_name]
+  properties:
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    component: { type: string }
+    name: { type: string }
+    parameter_name: { type: string }
+    value:
+      type: [string, "null"]
+      description: Null means the component uses its default.
+  additionalProperties: true
+
+ClusterConfigurationParameterList:
+  type: object
+  required: [parameters]
+  properties:
+    parameters:
+      type: array
+      items:
+        $ref: '#/ClusterConfigurationParameter'
+  additionalProperties: true
+
+ConfigurationParameter:
+  type: object
+  required: [name]
+  properties:
+    name: { type: string }
+    value:
+      type: [string, "null"]
+      description: Null resets the parameter to its default.
+  additionalProperties: false
+
+ConfigurationParameterUpdateRequest:
+  type: object
+  required: [parameters]
+  properties:
+    parameters:
+      type: array
+      items:
+        $ref: '#/ConfigurationParameter'
+    allow_restart:
+      type: boolean
+      description: Allow a needed Postgres restart while applying these values.
+  additionalProperties: false

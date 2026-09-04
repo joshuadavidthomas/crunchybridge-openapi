@@ -1,0 +1,85 @@
+BadRequest:
+  description: The request is invalid.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+Unauthorized:
+  description: The request has no valid authentication credentials.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+Forbidden:
+  description: The credential cannot perform this operation.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+NotFound:
+  description: The requested resource does not exist.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+IdempotencyConflict:
+  description: The idempotency key is in flight or was used for another request.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+    Idempotency-Key:
+      $ref: ../headers/common.yaml#/IdempotencyKey
+    Idempotency-Replay:
+      $ref: ../headers/common.yaml#/IdempotencyReplay
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+Error:
+  description: The request failed.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+Gone:
+  description: The resource existed but has already been deleted.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error
+
+RateLimited:
+  description: The caller exceeded an API rate limit.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+    Retry-After:
+      $ref: ../headers/common.yaml#/RetryAfter
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/Error

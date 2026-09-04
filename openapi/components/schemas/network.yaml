@@ -1,0 +1,58 @@
+Network:
+  type: object
+  description: A provider network shared by one or more team clusters.
+  required:
+    - id
+    - name
+    - provider_id
+    - region_id
+    - team_id
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    cidr4:
+      type:
+        - string
+        - "null"
+      description: IPv4 CIDR, which may be absent or null early in creation.
+    name:
+      type: string
+    provider_id:
+      type: string
+      description: Cloud provider identifier.
+    region_id:
+      type: string
+      description: Provider region identifier. GCP may use `global`.
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+NetworkList:
+  type: object
+  required:
+    - has_more
+    - networks
+  properties:
+    has_more:
+      type: boolean
+      description: Whether another page is available.
+    networks:
+      type: array
+      items:
+        $ref: '#/Network'
+    next_cursor:
+      type:
+        - string
+        - "null"
+      description: Pass this value as `cursor` to request the next page.
+  additionalProperties: true
+
+NetworkUpdateRequest:
+  type: object
+  properties:
+    name:
+      type:
+        - string
+        - "null"
+      description: New human-readable network name.
+  additionalProperties: false

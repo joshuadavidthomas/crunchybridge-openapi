@@ -1,0 +1,39 @@
+{
+  "name": "crunchybridge-openapi",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "description": "An unofficial OpenAPI description of the Crunchy Bridge API",
+  "scripts": {
+    "lint": "redocly lint",
+    "bundle": "redocly bundle crunchy-bridge@v0 --output dist/openapi.yaml",
+    "lint:bundle": "redocly lint dist/openapi.yaml --config redocly.yaml",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "generate:types": "openapi-typescript --default-non-nullable false",
+    "check:generated": "npm run generate:types && tsc --project tests/generated-client/tsconfig.json",
+    "generate:hey-api": "openapi-ts --input ./dist/openapi.yaml --output .generated/hey-api --plugins @hey-api/typescript zod",
+    "check:hey-api": "npm run generate:hey-api && tsc --strict --noEmit --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler .generated/hey-api/types.gen.ts .generated/hey-api/zod.gen.ts tests/generated-hey-api/smoke.ts && tsx tests/generated-hey-api/smoke.ts",
+    "check": "npm run lint && npm run bundle && npm run lint:bundle && npm run check:bundle && npm run check:generated && npm run check:hey-api",
+    "test": "npm run check"
+  },
+  "overrides": {
+    "@hey-api/json-schema-ref-parser": {
+      "js-yaml": "5.4.1"
+    }
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "@redocly/cli": "2.51.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "openapi-fetch": "^0.17.0",
+    "openapi-typescript": "^7.13.0",
+    "tsx": "4.23.13",
+    "typescript": "^5.9.3",
+    "yaml": "^2.9.0",
+    "zod": "4.5.4"
+  }
+}

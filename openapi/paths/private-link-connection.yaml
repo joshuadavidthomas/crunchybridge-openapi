@@ -1,0 +1,125 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: listClusterPrivateLinkConnections
+    tags:
+      - Private links
+    summary: List private-link connections
+    description: Returns provider endpoints connected or requesting connection to the cluster.
+    x-docs-url: https://docs.crunchybridge.com/api/private-link-connection#list-private-link-connections
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: Private-link connections.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/private-link.yaml#/ClusterPrivateLinkConnectionList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+approve:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+    - $ref: ../components/parameters/eids.yaml#/ConnectionId
+  post:
+    operationId: approveClusterPrivateLinkConnection
+    tags:
+      - Private links
+    summary: Approve a private-link connection
+    description: Approves a pending provider endpoint connection.
+    x-docs-url: https://docs.crunchybridge.com/api/private-link-connection#approve-a-private-link-connection
+    x-idempotent: false
+    x-disruptive: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    responses:
+      "200":
+        description: The approved connection.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/private-link.yaml#/ClusterPrivateLinkConnection
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+reject:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+    - $ref: ../components/parameters/eids.yaml#/ConnectionId
+  post:
+    operationId: rejectClusterPrivateLinkConnection
+    tags:
+      - Private links
+    summary: Reject a private-link connection
+    description: Rejects a pending provider endpoint connection.
+    x-docs-url: https://docs.crunchybridge.com/api/private-link-connection#reject-a-private-link-connection
+    x-idempotent: false
+    x-disruptive: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    responses:
+      "200":
+        description: The rejected connection.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/private-link.yaml#/ClusterPrivateLinkConnection
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

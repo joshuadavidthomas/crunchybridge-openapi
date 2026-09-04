@@ -1,0 +1,212 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listTeams
+    tags:
+      - Teams
+    summary: List teams
+    description: Returns teams visible to the caller.
+    x-docs-url: https://docs.crunchybridge.com/api/team#list-teams
+    x-idempotent: true
+    x-sensitive: true
+    parameters:
+      - name: automatic_sso_join_enabled
+        in: query
+        required: false
+        description: |
+          Filters to teams the caller can join through the SSO provider and
+          domain used for the current session.
+        schema:
+          type: boolean
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order teams.
+        schema:
+          type: string
+          enum:
+            - id
+            - name
+          default: name
+    responses:
+      "200":
+        description: A page of teams.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team.yaml#/TeamList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createTeam
+    tags:
+      - Teams
+    summary: Create a team
+    description: Creates a team. The account must have a payment method configured.
+    x-docs-url: https://docs.crunchybridge.com/api/team#create-team
+    x-idempotent: false
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/team.yaml#/TeamCreateRequest
+    responses:
+      "200":
+        description: The new team.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team.yaml#/Team
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/TeamId
+  get:
+    operationId: getTeam
+    tags:
+      - Teams
+    summary: Get a team
+    description: Returns a team visible to the caller.
+    x-docs-url: https://docs.crunchybridge.com/api/team#get-team
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The team.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team.yaml#/Team
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  patch:
+    operationId: updateTeam
+    tags:
+      - Teams
+    summary: Update a team
+    description: |
+      Updates team identity, access enforcement, notification addresses,
+      billing address, or support tier. Some changes can lock out members or
+      add recurring charges.
+    x-docs-url: https://docs.crunchybridge.com/api/team#update-team
+    x-idempotent: false
+    x-disruptive: true
+    x-sensitive: true
+    x-cost-bearing: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/team.yaml#/TeamUpdateRequest
+    responses:
+      "200":
+        description: The updated team.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team.yaml#/Team
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyTeam
+    tags:
+      - Teams
+    summary: Delete a team
+    description: |
+      Permanently deletes the team. Other billing documentation says callers
+      must first remove every cluster and finalize billing; this endpoint's page
+      does not document those preconditions or their error statuses.
+    x-docs-url: https://docs.crunchybridge.com/api/team#destroy-team
+    x-destructive: true
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The deleted team.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team.yaml#/Team
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

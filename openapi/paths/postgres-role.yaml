@@ -1,0 +1,159 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: listPostgresRoles
+    tags: [Postgres roles]
+    summary: List Postgres roles
+    description: Returns roles with credentials redacted. Pagination inputs are accepted, but the published response has no cursor metadata.
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-role#list-roles
+    x-idempotent: true
+    parameters:
+      - name: account_id
+        in: query
+        required: false
+        description: Repeat to include roles associated with any listed account.
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            oneOf:
+              - $ref: ../components/schemas/common.yaml#/EID
+              - type: "null"
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: [integer, "null"]
+          format: int64
+          minimum: 1
+          maximum: 200
+          default: 100
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [id, name]
+          default: id
+    responses:
+      "200":
+        description: Postgres roles with passwords and URIs redacted.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/postgres-role.yaml#/PostgresRoleList }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  post:
+    operationId: createPostgresRole
+    tags: [Postgres roles]
+    summary: Create a Postgres role
+    description: Creates a role for the calling account. The endpoint has no documented request body and may return plaintext credentials.
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-role#create-role
+    x-idempotent: false
+    x-sensitive: true
+    x-disruptive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    responses:
+      "201":
+        description: The new role, potentially including plaintext credentials.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+          Idempotency-Key: { $ref: ../components/headers/common.yaml#/IdempotencyKey }
+          Idempotency-Replay: { $ref: ../components/headers/common.yaml#/IdempotencyReplay }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/postgres-role.yaml#/PostgresRole }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "409": { $ref: ../components/responses/errors.yaml#/IdempotencyConflict }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+    - $ref: ../components/parameters/identifiers.yaml#/RoleName
+  get:
+    operationId: getPostgresRole
+    tags: [Postgres roles]
+    summary: Get a Postgres role
+    description: Returns a role and may reveal credentials; team admin access is required for the `postgres` role.
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-role#get-role
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The role, potentially including plaintext credentials.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/postgres-role.yaml#/PostgresRole }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  put:
+    operationId: upsertPostgresRole
+    tags: [Postgres roles]
+    summary: Upsert a Postgres role
+    description: Changes flavor or credentials, or creates the named role. Only `201` is documented; request-body presence remains unconfirmed.
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-role#update-role
+    x-idempotent: true
+    x-sensitive: true
+    x-disruptive: true
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/postgres-role.yaml#/PostgresRoleUpdateRequest }
+    responses:
+      "201":
+        description: The created or updated role, potentially including new credentials.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/postgres-role.yaml#/PostgresRole }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  delete:
+    operationId: destroyPostgresRole
+    tags: [Postgres roles]
+    summary: Delete a Postgres role
+    description: Deletes the role and returns it with password and URI redacted. Active clients may lose access.
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-role#delete-role
+    x-idempotent: true
+    x-disruptive: true
+    x-destructive: true
+    responses:
+      "200":
+        description: The deleted role with credentials redacted.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/postgres-role.yaml#/RedactedPostgresRole }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "410": { $ref: ../components/responses/errors.yaml#/Gone }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

@@ -1,0 +1,424 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listClusters
+    tags: [Clusters]
+    summary: List clusters
+    description: Returns clusters visible to the caller, ordered by name by default.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#list-clusters
+    x-idempotent: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - name: limit
+        in: query
+        required: false
+        description: Maximum number of clusters to return.
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 200
+          default: 100
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [id, name]
+          default: name
+      - name: team_id
+        in: query
+        required: false
+        schema:
+          oneOf:
+            - $ref: ../components/schemas/common.yaml#/EID
+            - type: "null"
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/ClusterList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createCluster
+    tags: [Clusters]
+    summary: Create a cluster
+    description: |
+      Starts provisioning a billed cluster. `firewall_mode`, `network_id`, and
+      `network_cidr4` are mutually exclusive. If neither network field is supplied,
+      Bridge creates a network and applies `firewall_mode` when present. `provider_id`
+      cannot accompany `network_id`. A GCP
+      network requires `region_id`; other supplied network and region values must
+      agree. `network_cidr4` must fall within RFC 1918 private space with a prefix
+      no longer than 20 bits. Omitting `postgres_version_id` selects the current
+      default. The required request fields make a body necessary even though the
+      generated first-party description omits body-level requiredness.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#create-cluster
+    x-idempotent: false
+    x-cost-bearing: true
+    x-long-running: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/cluster.yaml#/ClusterCreateRequest
+    responses:
+      "201":
+        $ref: ../components/responses/cluster.yaml#/ClusterCreated
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: getCluster
+    tags: [Clusters]
+    summary: Get a cluster
+    description: Returns one cluster and its current resource fields.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#get-cluster
+    x-idempotent: true
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/Cluster
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  patch:
+    operationId: updateCluster
+    tags: [Clusters]
+    summary: Update a cluster
+    description: Every update field is optional. Whether the endpoint accepts an omitted body remains unconfirmed.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#update-cluster
+    x-idempotent: false
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/cluster.yaml#/ClusterUpdateRequest
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/ClusterUpdated
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyCluster
+    tags: [Clusters]
+    summary: Delete a cluster
+    description: Permanently deletes an unprotected cluster and its data.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#destroy-cluster
+    x-idempotent: true
+    x-destructive: true
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/Cluster
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+status:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: getClusterStatus
+    tags: [Clusters]
+    summary: Get cluster status
+    description: Returns the cluster state, active work, disk usage, and oldest restorable backup point.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#get-cluster-status
+    x-idempotent: true
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/ClusterStatus
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+forks:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  post:
+    operationId: forkCluster
+    tags: [Clusters]
+    summary: Fork a cluster
+    description: |
+      Starts provisioning a separately billed cluster from a backup point. A
+      supplied provider requires plan and region; omitted placement, plan, and
+      storage fields inherit from the source. A supplied region must match the
+      network. Recovery targets must fall within the status endpoint's oldest
+      backup bounds and the current database position. The source must have an
+      initial backup. Network selection follows the create operation's exclusions.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#fork-cluster
+    x-idempotent: false
+    x-cost-bearing: true
+    x-long-running: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/cluster.yaml#/ClusterForkRequest
+    responses:
+      "201":
+        $ref: ../components/responses/cluster.yaml#/ClusterCreated
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+disableHa:
+  parameters: &clusterActionParameters
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  put:
+    operationId: disableClusterHighAvailability
+    tags: [Clusters]
+    summary: Disable high availability
+    description: Starts removal of the cluster's high-availability standby.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#disable-high-availability
+    x-idempotent: true
+    x-disruptive: true
+    x-long-running: true
+    responses: &operationResponses
+      "200":
+        $ref: ../components/responses/cluster.yaml#/ClusterOperation
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+enableHa:
+  parameters: *clusterActionParameters
+  put:
+    operationId: enableClusterHighAvailability
+    tags: [Clusters]
+    summary: Enable high availability
+    description: Starts adding a standby and increases the cluster's billed price.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#enable-high-availability
+    x-idempotent: true
+    x-disruptive: true
+    x-long-running: true
+    x-cost-bearing: true
+    responses: *operationResponses
+
+ping:
+  parameters: *clusterActionParameters
+  put:
+    operationId: pingCluster
+    tags: [Clusters]
+    summary: Ping a cluster
+    description: Runs a simple database query and returns its result message.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#ping-cluster
+    x-idempotent: true
+    responses: &messageResponses
+      "200":
+        $ref: ../components/responses/cluster.yaml#/Message
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+restart:
+  parameters: *clusterActionParameters
+  put:
+    operationId: restartCluster
+    tags: [Clusters]
+    summary: Restart a cluster service
+    description: Queues one asynchronous restart. Repeated calls coalesce into one pending restart until it occurs. Omitting `service` restarts the server.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#restart-cluster
+    x-idempotent: true
+    x-disruptive: true
+    x-long-running: true
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/cluster.yaml#/ClusterRestartRequest
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/Cluster
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+resume:
+  parameters: *clusterActionParameters
+  put:
+    operationId: resumeCluster
+    tags: [Clusters]
+    summary: Resume a cluster
+    description: Resumes a suspended cluster and its normal billing.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#resume-cluster
+    x-idempotent: true
+    x-disruptive: true
+    x-cost-bearing: true
+    responses: &clusterActionResponses
+      "200":
+        $ref: ../components/responses/cluster.yaml#/Cluster
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+startBackup:
+  parameters: *clusterActionParameters
+  put:
+    operationId: startClusterBackup
+    tags: [Clusters]
+    summary: Start a cluster backup
+    description: Requests an asynchronous backup; the service may no-op when a backup is active or recent.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#start-cluster-backup
+    x-idempotent: true
+    x-long-running: true
+    responses: *messageResponses
+
+suspend:
+  parameters: *clusterActionParameters
+  put:
+    operationId: suspendCluster
+    tags: [Clusters]
+    summary: Suspend a cluster
+    description: Suspends an eligible AWS or Azure primary cluster; storage billing continues.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#suspend-cluster
+    x-idempotent: true
+    x-disruptive: true
+    responses: *clusterActionResponses
+
+tailscaleConnect:
+  parameters: *clusterActionParameters
+  put:
+    operationId: connectClusterToTailscale
+    tags: [Clusters]
+    summary: Connect a cluster to Tailscale
+    description: |
+      Connects the cluster with either a short-lived auth key or a stored OAuth
+      client. The two fields are mutually exclusive. Body presence and empty-body
+      behavior remain unconfirmed because the published schema requires neither.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#connect-cluster-to-tailscale
+    x-idempotent: true
+    x-disruptive: true
+    x-sensitive: true
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/cluster.yaml#/TailscaleConnectRequest
+    responses:
+      "200":
+        $ref: ../components/responses/cluster.yaml#/Message
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+tailscaleDisconnect:
+  parameters: *clusterActionParameters
+  put:
+    operationId: disconnectClusterFromTailscale
+    tags: [Clusters]
+    summary: Disconnect a cluster from Tailscale
+    description: Removes the cluster's Tailscale connection.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster#disconnect-cluster-from-tailscale
+    x-idempotent: true
+    x-disruptive: true
+    responses: *messageResponses

@@ -1,0 +1,64 @@
+ChangelogComponent:
+  type: string
+  enum:
+    - api
+    - cli
+    - dashboard
+    - docs
+    - feature
+    - postgres
+
+Changelog:
+  type: object
+  description: A published Crunchy Bridge product or service change.
+  required:
+    - component
+    - created_at
+    - description
+    - id
+    - name
+    - published_at
+    - title
+    - updated_at
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    component:
+      description: Product area affected by the change, if categorized.
+      oneOf:
+        - $ref: '#/ChangelogComponent'
+        - type: "null"
+    created_at:
+      type: string
+      format: date-time
+      description: When the changelog record was created.
+    description:
+      type: string
+      description: Published description of the change.
+    name:
+      type: string
+      description: Stable, human-readable identifier for the entry.
+    published_at:
+      type: string
+      format: date-time
+      description: When the change was published.
+    title:
+      type: string
+      description: Published title of the change.
+    updated_at:
+      type: string
+      format: date-time
+      description: When the changelog record was last updated.
+  additionalProperties: true
+
+ChangelogList:
+  allOf:
+    - $ref: ./pagination.yaml#/CursorPage
+    - type: object
+      required:
+        - changelogs
+      properties:
+        changelogs:
+          type: array
+          items:
+            $ref: '#/Changelog'

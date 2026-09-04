@@ -1,0 +1,77 @@
+ClusterList:
+  description: Clusters visible to the caller.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/ClusterList
+
+Cluster:
+  description: The cluster.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/Cluster
+
+ClusterCreated:
+  description: The new cluster in its initial provisioning state.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+    Idempotency-Key:
+      $ref: ../headers/common.yaml#/IdempotencyKey
+    Idempotency-Replay:
+      $ref: ../headers/common.yaml#/IdempotencyReplay
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/Cluster
+
+ClusterUpdated:
+  description: The updated cluster.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+    Idempotency-Key:
+      $ref: ../headers/common.yaml#/IdempotencyKey
+    Idempotency-Replay:
+      $ref: ../headers/common.yaml#/IdempotencyReplay
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/Cluster
+
+ClusterStatus:
+  description: The cluster's current state, operations, and backup bounds.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/ClusterStatus
+
+ClusterOperation:
+  description: The high-availability operation.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/ClusterOperation
+
+Message:
+  description: Operation result message.
+  headers:
+    X-Request-Id:
+      $ref: ../headers/common.yaml#/XRequestId
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/cluster.yaml#/Message

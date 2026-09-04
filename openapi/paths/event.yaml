@@ -1,0 +1,123 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listEvents
+    tags:
+      - Events
+    summary: List events
+    description: |
+      Lists retained audit events. Specify either `cluster_id` or `team_id`, not
+      both. With neither filter, the API returns events caused by the current
+      account.
+
+      To poll, first request `order=desc&limit=1`. Use the newest event ID as the
+      cursor, then request ascending pages with a stream delay. Drain pages while
+      `has_more` is true; otherwise wait before polling again. Events are retained
+      for 90 days.
+    x-docs-url: https://docs.crunchybridge.com/api/event#list-events
+    x-idempotent: true
+    x-sensitive: true
+    parameters:
+      - name: cluster_id
+        in: query
+        required: false
+        description: Filter to one cluster. Do not combine with `team_id`.
+        schema:
+          $ref: ../components/schemas/common.yaml#/EID
+      - name: team_id
+        in: query
+        required: false
+        description: Filter to one team. Do not combine with `cluster_id`.
+        schema:
+          $ref: ../components/schemas/common.yaml#/EID
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - name: delay
+        in: query
+        required: false
+        description: |
+          Delays the event stream to avoid skipping transactions that commit out
+          of ID order. The field table calls this an integer, while polling docs
+          use duration strings such as `10s` and `30s`. Requests last at most 30
+          seconds.
+        schema:
+          oneOf:
+            - type: integer
+              minimum: 0
+              maximum: 30
+            - type: string
+              pattern: ^[0-9]+s$
+          examples:
+            - 10s
+      - name: kind
+        in: query
+        required: false
+        description: Event kinds to include. Repeat the parameter for each kind.
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+        example:
+          - cluster.created
+          - cluster.suspended
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order events.
+        schema:
+          type: string
+          enum:
+            - id
+          default: id
+    responses:
+      "200":
+        description: A page of events.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/event.yaml#/EventList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/EventId
+  get:
+    operationId: getEvent
+    tags:
+      - Events
+    summary: Get an event
+    description: Returns one retained audit event.
+    x-docs-url: https://docs.crunchybridge.com/api/event#get-event
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The event.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/event.yaml#/Event
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

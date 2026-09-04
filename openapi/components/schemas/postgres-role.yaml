@@ -1,0 +1,54 @@
+PostgresRole:
+  type: object
+  required: [cluster_id, flavor, name, team_id]
+  properties:
+    account_email: { type: [string, "null"] }
+    account_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    flavor:
+      type: [string, "null"]
+      enum: [nologin, read, write, null]
+    name: { type: string }
+    password: { type: [string, "null"] }
+    team_id:
+      $ref: ./common.yaml#/EID
+    uri: { type: [string, "null"] }
+  additionalProperties: true
+
+RedactedPostgresRole:
+  allOf:
+    - $ref: '#/PostgresRole'
+    - type: object
+      properties:
+        password: { type: "null" }
+        uri: { type: "null" }
+      additionalProperties: true
+
+PostgresRoleList:
+  type: object
+  required: [roles]
+  properties:
+    roles:
+      type: array
+      items:
+        $ref: '#/RedactedPostgresRole'
+  additionalProperties: true
+
+PostgresRoleUpdateRequest:
+  type: object
+  properties:
+    flavor:
+      type: [string, "null"]
+      enum: [nologin, read, write, null]
+    password_scram_sha256:
+      type: [string, "null"]
+      writeOnly: true
+      x-sensitive: true
+      description: New SCRAM-SHA-256 password verifier.
+    rotate_password:
+      type: [boolean, "null"]
+  additionalProperties: false

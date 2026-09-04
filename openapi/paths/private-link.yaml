@@ -1,0 +1,107 @@
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: getClusterPrivateLink
+    tags:
+      - Private links
+    summary: Get a cluster private link
+    description: Returns the cluster's singleton private link. Returns 404 when absent.
+    x-docs-url: https://docs.crunchybridge.com/api/private-link#get-private-link
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The cluster private link.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/private-link.yaml#/ClusterPrivateLink
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createClusterPrivateLink
+    tags:
+      - Private links
+    summary: Create a cluster private link
+    description: Starts creation of a provider private-link endpoint service.
+    x-docs-url: https://docs.crunchybridge.com/api/private-link#create-private-link
+    x-idempotent: false
+    x-disruptive: true
+    x-long-running: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    responses:
+      "201":
+        description: The new private link, normally in `creating` state.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/private-link.yaml#/ClusterPrivateLink
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyClusterPrivateLink
+    tags:
+      - Private links
+    summary: Delete a cluster private link
+    description: Starts removal of the cluster's private link.
+    x-docs-url: https://docs.crunchybridge.com/api/private-link#destroy-private-link
+    x-disruptive: true
+    x-idempotent: true
+    x-long-running: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The private link being deleted.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/private-link.yaml#/ClusterPrivateLink
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

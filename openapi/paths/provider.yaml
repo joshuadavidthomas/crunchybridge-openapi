@@ -1,0 +1,40 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listProviders
+    tags:
+      - Providers
+    summary: List providers
+    description: |
+      Returns cloud providers, regions, plans, and pricing available to the
+      caller. Supplying a team may expose plans enabled for that team. The
+      default catalog is available without authentication.
+    security:
+      - bearerAuth: []
+      - {}
+    x-docs-url: https://docs.crunchybridge.com/api/provider#list-providers
+    x-idempotent: true
+    parameters:
+      - name: team_id
+        in: query
+        required: false
+        description: Team whose provider and plan availability should be used.
+        schema:
+          $ref: ../components/schemas/common.yaml#/EID
+    responses:
+      "200":
+        description: Available providers.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/provider.yaml#/ProviderList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

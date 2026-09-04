@@ -1,0 +1,79 @@
+AccessTokenId:
+  name: access_token_id
+  in: path
+  required: true
+  description: The access token's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+AccountId:
+  name: account_id
+  in: path
+  required: true
+  description: The account's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+ClusterId:
+  name: cluster_id
+  in: path
+  required: true
+  description: The cluster's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+ConnectionId:
+  name: connection_id
+  in: path
+  required: true
+  description: The private-link connection's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+EventId:
+  name: event_id
+  in: path
+  required: true
+  description: The event's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+LoggerId:
+  name: logger_id
+  in: path
+  required: true
+  description: The cluster logger's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+NetworkId:
+  name: network_id
+  in: path
+  required: true
+  description: The network's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+PeeringId:
+  name: peering_id
+  in: path
+  required: true
+  description: The network peering's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+RuleId:
+  name: rule_id
+  in: path
+  required: true
+  description: The firewall rule's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID
+
+TeamId:
+  name: team_id
+  in: path
+  required: true
+  description: The team's EID.
+  schema:
+    $ref: ../schemas/common.yaml#/EID

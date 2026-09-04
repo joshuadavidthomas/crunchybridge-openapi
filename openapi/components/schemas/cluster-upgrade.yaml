@@ -1,0 +1,64 @@
+ClusterUpgrade:
+  type: object
+  required: [cluster_id, operations, team_id]
+  properties:
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    operations:
+      type: array
+      items:
+        $ref: ./cluster.yaml#/ClusterOperation
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+ClusterUpgradeCreateRequest:
+  type: object
+  properties:
+    major_version:
+      type: [integer, "null"]
+      format: int32
+      deprecated: true
+      description: Deprecated. Use `postgres_version_id`.
+    plan_id: { type: [string, "null"] }
+    postgres_version_id:
+      oneOf:
+        - type: integer
+          format: int32
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    starting_from:
+      type: [string, "null"]
+      format: date-time
+      description: Scheduled start, less than 72 hours ahead. Omission uses the cluster maintenance window.
+    storage:
+      type: [integer, "null"]
+      format: int32
+  additionalProperties: false
+
+ClusterUpgradeUpdateRequest:
+  type: object
+  not:
+    required: [starting_from, use_cluster_maintenance_window]
+    properties:
+      starting_from: { type: string }
+      use_cluster_maintenance_window: { type: boolean }
+  properties:
+    plan_id: { type: [string, "null"] }
+    postgres_version_id:
+      oneOf:
+        - type: integer
+          format: int32
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    starting_from:
+      type: [string, "null"]
+      format: date-time
+      description: Mutually exclusive with `use_cluster_maintenance_window`.
+    storage:
+      type: [integer, "null"]
+      format: int32
+    use_cluster_maintenance_window:
+      type: [boolean, "null"]
+      description: Mutually exclusive with `starting_from`.
+  additionalProperties: false

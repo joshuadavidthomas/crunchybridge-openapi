@@ -1,0 +1,288 @@
+TeamRole:
+  type: string
+  enum:
+    - admin
+    - manager
+    - member
+
+DatabaseRoleFlavor:
+  type: string
+  enum:
+    - nologin
+    - read
+    - write
+
+SupportTier:
+  type: string
+  enum:
+    - business
+    - premium
+    - standard
+
+TeamAutomaticSSOJoin:
+  type: object
+  required:
+    - default_access_group
+    - default_role
+    - sso_domain
+    - sso_identity_provider
+    - sso_identity_provider_user_facing_name
+  properties:
+    default_access_group:
+      $ref: ./common.yaml#/EID
+    default_role:
+      description: Deprecated legacy role assigned to automatic SSO joins.
+      oneOf:
+        - $ref: '#/TeamRole'
+        - type: "null"
+      deprecated: true
+    sso_domain:
+      type: string
+      description: Email domain allowed to join through SSO.
+    sso_identity_provider:
+      type: string
+      description: Identity-provider identifier.
+    sso_identity_provider_user_facing_name:
+      type: string
+      description: Identity-provider name shown to users.
+  additionalProperties: true
+
+TeamBillingAddress:
+  type: object
+  required:
+    - city
+    - country
+    - line_1
+  properties:
+    city:
+      type: string
+    country:
+      type: string
+      description: Two-letter country code.
+    line_1:
+      type: string
+    line_2:
+      type:
+        - string
+        - "null"
+    name:
+      type:
+        - string
+        - "null"
+    postal_code:
+      type:
+        - string
+        - "null"
+    state:
+      type:
+        - string
+        - "null"
+  additionalProperties: true
+
+TeamBillingAddressRequest:
+  type: object
+  required:
+    - city
+    - country
+    - line_1
+  properties:
+    city:
+      type: string
+    country:
+      type: string
+      description: Two-letter country code.
+    line_1:
+      type: string
+    line_2:
+      type:
+        - string
+        - "null"
+    name:
+      type:
+        - string
+        - "null"
+    postal_code:
+      type:
+        - string
+        - "null"
+    state:
+      type:
+        - string
+        - "null"
+  additionalProperties: false
+
+Team:
+  type: object
+  required:
+    - created_at
+    - default_role_flavor
+    - id
+    - is_default
+    - name
+    - support_tier
+    - updated_at
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    automatic_sso_join:
+      description: Automatic SSO join settings, if enabled.
+      oneOf:
+        - $ref: '#/TeamAutomaticSSOJoin'
+        - type: "null"
+    billing_address:
+      $ref: '#/TeamBillingAddress'
+    billing_email:
+      type:
+        - string
+        - "null"
+      description: Email address that receives billing messages after verification.
+    billing_email_verified:
+      type:
+        - boolean
+        - "null"
+    created_at:
+      type: string
+      format: date-time
+    default_role_flavor:
+      description: Default flavor for database roles created for team accounts.
+      oneOf:
+        - $ref: '#/DatabaseRoleFlavor'
+        - type: "null"
+    enforce_mfa:
+      type: boolean
+      description: Whether team members must enable multi-factor authentication.
+    enforce_sso:
+      type: boolean
+      description: Whether team members must use SSO.
+    invoice_note:
+      type:
+        - string
+        - "null"
+      description: Text placed on future invoices.
+    is_default:
+      type: boolean
+      description: Whether this is the caller's default team.
+    is_personal:
+      type: boolean
+      description: |
+        Whether this is the caller's personal team. This appears in official
+        examples and the CLI but is absent from the current field table.
+    name:
+      type: string
+    payment_method:
+      type:
+        - string
+        - "null"
+      description: Payment-method kind. The API does not expose card details here.
+    role:
+      description: The caller's role on the team, or null for a personal team.
+      oneOf:
+        - $ref: '#/TeamRole'
+        - type: "null"
+    support_tier:
+      description: Support tier, if one is selected.
+      oneOf:
+        - $ref: '#/SupportTier'
+        - type: "null"
+    technical_email:
+      type:
+        - string
+        - "null"
+      description: Email address that receives technical messages after verification.
+    technical_email_verified:
+      type:
+        - boolean
+        - "null"
+    updated_at:
+      type: string
+      format: date-time
+  additionalProperties: true
+
+TeamList:
+  allOf:
+    - $ref: ./pagination.yaml#/CursorPage
+    - type: object
+      required:
+        - teams
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: '#/Team'
+
+TeamCreateRequest:
+  type: object
+  required:
+    - name
+  properties:
+    name:
+      type: string
+    automatic_sso_join_default_role:
+      description: Deprecated legacy role for accounts that join automatically.
+      oneOf:
+        - $ref: '#/TeamRole'
+        - type: "null"
+      deprecated: true
+    automatic_sso_join_enabled:
+      type:
+        - boolean
+        - "null"
+    default_role_flavor:
+      description: Default database role flavor. Omission means read-only.
+      oneOf:
+        - $ref: '#/DatabaseRoleFlavor'
+        - type: "null"
+  additionalProperties: false
+
+TeamUpdateRequest:
+  type: object
+  properties:
+    allow_automatic_sso_join_default_access_group_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    allow_automatic_sso_join_default_role:
+      description: Deprecated legacy role for accounts that join automatically.
+      oneOf:
+        - $ref: '#/TeamRole'
+        - type: "null"
+      deprecated: true
+    automatic_sso_join_enabled:
+      type:
+        - boolean
+        - "null"
+    billing_address:
+      $ref: '#/TeamBillingAddressRequest'
+    billing_email:
+      type:
+        - string
+        - "null"
+    default_role_flavor:
+      oneOf:
+        - $ref: '#/DatabaseRoleFlavor'
+        - type: "null"
+    enforce_mfa:
+      type:
+        - boolean
+        - "null"
+    enforce_sso:
+      type:
+        - boolean
+        - "null"
+    invoice_note:
+      type:
+        - string
+        - "null"
+    name:
+      type:
+        - string
+        - "null"
+    support_tier:
+      oneOf:
+        - $ref: '#/SupportTier'
+        - type: "null"
+    technical_email:
+      type:
+        - string
+        - "null"
+  additionalProperties: false

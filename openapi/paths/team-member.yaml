@@ -1,0 +1,205 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/TeamId
+  get:
+    operationId: listTeamMembers
+    tags:
+      - Team members
+    summary: List team members
+    description: Returns members and pending invitations for a team.
+    x-docs-url: https://docs.crunchybridge.com/api/team-member#list-team-members
+    x-idempotent: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order team members.
+        schema:
+          type: string
+          enum:
+            - email
+            - id
+          default: id
+    responses:
+      "200":
+        description: A page of team members.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team-member.yaml#/TeamMemberList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createTeamMember
+    tags:
+      - Team members
+    summary: Add or invite a team member
+    description: |
+      Adds an account, sends an invitation, or joins the caller through the
+      team's automatic SSO policy. The docs allow every body field to be blank
+      for the automatic SSO case.
+    x-docs-url: https://docs.crunchybridge.com/api/team-member#create-team-member
+    x-idempotent: false
+    x-disruptive: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/team-member.yaml#/TeamMemberCreateRequest
+    responses:
+      "201":
+        description: The new membership or invitation.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team-member.yaml#/TeamMember
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/TeamId
+    - $ref: ../components/parameters/eids.yaml#/AccountId
+  get:
+    operationId: getTeamMember
+    tags:
+      - Team members
+    summary: Get a team member
+    description: Returns a team membership by the member's account EID.
+    x-docs-url: https://docs.crunchybridge.com/api/team-member#get-team-member
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The team member.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team-member.yaml#/TeamMember
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  put:
+    operationId: updateTeamMember
+    tags:
+      - Team members
+    summary: Add or update a team member
+    description: Idempotently adds the account to the team or updates its role.
+    x-docs-url: https://docs.crunchybridge.com/api/team-member#update-team-member
+    x-idempotent: true
+    x-disruptive: true
+    x-sensitive: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/team-member.yaml#/TeamMemberUpdateRequest
+    responses:
+      "200":
+        description: The added or updated team member.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team-member.yaml#/TeamMember
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: removeTeamMember
+    tags:
+      - Team members
+    summary: Remove a team member
+    description: |
+      Removes the membership and every access-group assignment. Pending
+      invitations may lack the account ID required by this only documented
+      removal route.
+    x-docs-url: https://docs.crunchybridge.com/api/team-member#remove-team-member
+    x-destructive: true
+    x-disruptive: true
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The removed team member.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/team-member.yaml#/TeamMember
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

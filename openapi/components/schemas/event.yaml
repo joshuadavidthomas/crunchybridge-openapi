@@ -1,0 +1,115 @@
+Event:
+  type: object
+  description: |
+    An audit event. Event descriptions are for people and are not a stable
+    machine-readable format. Historical `data` may not match current resource
+    schemas.
+  required:
+    - actor_email
+    - actor_id
+    - actor_ip
+    - cluster_id
+    - created_at
+    - data
+    - description
+    - id
+    - kind
+    - object_id
+    - object_kind
+    - previous_properties
+    - request_id
+    - team_id
+  properties:
+    id:
+      allOf:
+        - $ref: ./common.yaml#/EID
+      description: A time-ordered EID for the event.
+    actor_email:
+      type:
+        - string
+        - "null"
+      description: Email of the account that caused the event, if any.
+    actor_id:
+      description: EID of the account that caused the event, if any.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    actor_ip:
+      type:
+        - string
+        - "null"
+      description: IP address of the actor, if the event has one.
+    cluster_id:
+      description: EID of the associated cluster, if any.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    created_at:
+      type: string
+      format: date-time
+      description: When the event occurred.
+    data:
+      type: object
+      description: A historical snapshot of the affected resource.
+      additionalProperties: true
+    description:
+      type: string
+      description: Human-readable text whose format may change without notice.
+    kind:
+      type: string
+      description: Event kind, such as `cluster.created` or `cluster.suspended`.
+    object_id:
+      $ref: ./common.yaml#/EID
+    object_kind:
+      type: string
+      description: Kind of the primary object affected by the event.
+    previous_properties:
+      description: Previous values for changed fields, usually on update events.
+      oneOf:
+        - type: object
+          additionalProperties: true
+        - type: "null"
+    request_id:
+      description: UUID of the API request that caused the event, if any.
+      oneOf:
+        - type: string
+          format: uuid
+        - type: "null"
+    team_id:
+      description: EID of the associated team, if any.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+  additionalProperties: true
+
+EventList:
+  allOf:
+    - $ref: ./pagination.yaml#/CursorPage
+    - type: object
+      required:
+        - events
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/Event'
+  examples:
+    - events:
+        - actor_email: null
+          actor_id: qvcw4hylovgyzbwzp53bmmlhga
+          actor_ip: 192.0.2.1
+          cluster_id: rvf73a77ozfsvcttryebfrnlem
+          created_at: "2021-07-11T01:02:03Z"
+          data:
+            id: p56biajnfvgjhftvqs7lqymspe
+            name: example-network
+          description: An account created an example network.
+          id: klkvpx5enfdilaehwhvnmcfoiy
+          kind: network.created
+          object_id: p56biajnfvgjhftvqs7lqymspe
+          object_kind: network
+          previous_properties: null
+          request_id: 27a532f4-5bc8-4810-b602-88475a93167c
+          team_id: eaevtjiudzeq7bsqbbpiscund4
+      has_more: false
+      next_cursor: null

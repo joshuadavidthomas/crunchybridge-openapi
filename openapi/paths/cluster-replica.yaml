@@ -1,0 +1,68 @@
+replicas:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  post:
+    operationId: createClusterReplica
+    tags: [Cluster replicas]
+    summary: Create a cluster replica
+    description: |
+      Starts provisioning a separately billed replica. `network_cidr4` and
+      `network_id` exclude each other, and `network_id` excludes `provider_id`.
+      A provider requires plan and region. A non-GCP network excludes `region_id`,
+      while a GCP network requires it. `network_cidr4` must use RFC 1918 private
+      space with a prefix no longer than 20 bits.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-replica#create-cluster-replica
+    x-idempotent: false
+    x-cost-bearing: true
+    x-long-running: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/cluster-replica.yaml#/ClusterReplicaCreateRequest }
+    responses:
+      "201":
+        description: The new replica in its initial state.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+          Idempotency-Key: { $ref: ../components/headers/common.yaml#/IdempotencyKey }
+          Idempotency-Replay: { $ref: ../components/headers/common.yaml#/IdempotencyReplay }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster.yaml#/Cluster }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "409": { $ref: ../components/responses/errors.yaml#/IdempotencyConflict }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+
+detach:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  put:
+    operationId: detachClusterReplica
+    tags: [Cluster replicas]
+    summary: Detach a cluster replica
+    description: Detaches asynchronously into an independent writable cluster. Repeated calls no-op while detachment is pending; calling it after the cluster is no longer a replica returns an error.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-replica#detach-replica
+    x-idempotent: true
+    x-disruptive: true
+    x-long-running: true
+    responses:
+      "200":
+        description: The detaching cluster.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster.yaml#/Cluster }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

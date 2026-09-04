@@ -1,0 +1,130 @@
+Account:
+  type: object
+  description: |
+    A user account. SSO authentication may return a synthetic account without
+    some fields that appear on a stored account.
+  required:
+    - access_groups
+    - default_team_id
+    - email
+    - first_name
+    - has_password
+    - has_personal_team
+    - has_sso
+    - id
+    - last_name
+    - last_seen_at
+    - login_url
+    - multi_factor_enabled
+    - name
+    - notifications_enabled
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    access_groups:
+      description: |
+        Access groups on the account's team, ordered by access group ID. The
+        docs declare this as an array of arrays, while their example is null.
+      type:
+        - array
+        - "null"
+      items:
+        type: array
+        items: {}
+    created_at:
+      description: |
+        When the account was created. Synthetic accounts returned during SSO
+        authentication omit this field.
+      type:
+        - string
+        - "null"
+      format: date-time
+    dashboard_settings:
+      type: object
+      description: |
+        Dashboard preferences. This field appears in the documented example
+        but is absent from the resource field table.
+      additionalProperties: true
+    default_team_id:
+      description: |
+        The default team's EID. Null means the personal team whose ID matches
+        the account ID.
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    email:
+      type: string
+      description: Email associated with the account.
+    first_name:
+      type:
+        - string
+        - "null"
+      deprecated: true
+      description: Deprecated. Use name, which contains the full name.
+    has_password:
+      type: boolean
+      description: Whether the account has a password.
+    has_personal_team:
+      type: boolean
+      deprecated: true
+      description: Deprecated. All accounts have a personal team, so this is true.
+    has_sso:
+      type: boolean
+      description: Whether the account has a federated SSO identity.
+    last_name:
+      type:
+        - string
+        - "null"
+      deprecated: true
+      description: Deprecated. Use name, which contains the full name.
+    last_seen_at:
+      type:
+        - string
+        - "null"
+      format: date-time
+      description: When the account last used the API or web dashboard.
+    login_url:
+      type:
+        - string
+        - "null"
+      description: A URL that starts a new login flow when the session expires.
+    multi_factor_enabled:
+      type: boolean
+      description: Whether the account has an active multi-factor source.
+    name:
+      type: string
+      description: Full name associated with the account.
+    notifications_enabled:
+      type: boolean
+      description: |
+        Whether account and email notifications are enabled globally. Billing,
+        security, and onboarding notifications may ignore this setting.
+    updated_at:
+      description: |
+        When the account was last updated. Synthetic accounts returned during
+        SSO authentication omit this field.
+      type:
+        - string
+        - "null"
+      format: date-time
+  additionalProperties: true
+  examples:
+    - access_groups: null
+      created_at: "2021-07-11T01:02:03Z"
+      dashboard_settings:
+        rows_per_page: null
+        skip_cluster_onboarding: false
+      default_team_id: null
+      email: cheshire.cat@example.com
+      first_name: First
+      has_password: true
+      has_personal_team: true
+      has_sso: false
+      id: qvcw4hylovgyzbwzp53bmmlhga
+      last_name: Last
+      last_seen_at: "2021-07-11T01:02:03Z"
+      login_url: null
+      multi_factor_enabled: true
+      name: Cheshire Cat
+      notifications_enabled: true
+      updated_at: "2021-07-11T01:02:03Z"

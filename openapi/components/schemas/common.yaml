@@ -1,0 +1,32 @@
+EID:
+  type: string
+  description: |
+    A lowercase, 26-character Base32 encoding of a 128-bit identifier.
+  pattern: ^[a-z2-7]{25}[aeimquy4]$
+  examples:
+    - rvf73a77ozfsvcttryebfrnlem
+
+Error:
+  type: object
+  description: |
+    An API error. The public documentation guarantees a human-readable
+    message and a request ID, but does not document the full error shape.
+  required:
+    - message
+    - request_id
+  properties:
+    code:
+      description: |
+        A machine-readable error code when one is available. Its non-null type
+        is not documented; an unauthenticated request returned null.
+    is_transient:
+      type: boolean
+      description: Whether retrying the request may succeed without a change.
+    message:
+      type: string
+      description: A human-readable description of the error.
+    request_id:
+      type: string
+      format: uuid
+      description: The request identifier to include when contacting support.
+  additionalProperties: true

@@ -1,0 +1,40 @@
+observed_on: 2026-09-04
+base_url: https://api.crunchybridge.com
+sanitization: Public catalog and changelog content is not retained here; request IDs and transport metadata are omitted.
+observations:
+  - operation_id: listChangelogs
+    method: GET
+    path: /changelogs?limit=1
+    status: 200
+    authentication: omitted
+    observed_top_level_fields: [changelogs, has_more, next_cursor]
+  - operation_id: getChangelog
+    method: GET
+    path: /changelogs/feature_heroku_addon_beta
+    status: 200
+    authentication: omitted
+    observed_top_level_fields: [component, created_at, description, id, name, published_at, title, updated_at]
+  - operation_id: listProviders
+    method: GET
+    path: /providers
+    status: 200
+    authentication: omitted
+    observed_top_level_fields: [providers]
+  - operation_id: listPostgresVersions
+    method: GET
+    path: /postgres-versions
+    status: 200
+    authentication: omitted
+    observed_top_level_fields: [postgres_versions]
+  - operation_id: getPostgresVersion
+    method: GET
+    path: /postgres-versions/17
+    status: 200
+    authentication: omitted
+    observed_top_level_fields: [display_name, id, is_default, major_version]
+  - operation_id: listSupportedConfigurationParameters
+    method: GET
+    path: /configuration-parameters
+    status: 401
+    authentication: omitted
+    observed_top_level_fields: [code, is_transient, message, request_id]

@@ -1,0 +1,73 @@
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - name: name
+      in: path
+      required: true
+      description: Metric view name.
+      schema:
+        type: string
+        enum: [cpu, disk-usage, iops, load-average, memory, network-usage, pgbouncer-client-connections, pgbouncer-network-usage, pgbouncer-performance, pgbouncer-server-connections, postgres-connections, replication-lag]
+  get:
+    operationId: getMetricView
+    tags: [Metric views]
+    summary: Get a metric view
+    description: Returns chart series for either a custom `begin`/`end` window or a named `period`.
+    x-docs-url: https://docs.crunchybridge.com/api/metric-view#get-metric-view
+    x-idempotent: true
+    parameters:
+      - name: cluster_id
+        in: query
+        required: true
+        schema: { $ref: ../components/schemas/common.yaml#/EID }
+      - name: begin
+        in: query
+        required: false
+        description: Custom window start. Send with `end`; do not send with `period`.
+        schema: { type: string, format: date-time }
+      - name: end
+        in: query
+        required: false
+        description: Custom window end. Send with `begin`; do not send with `period`.
+        schema: { type: string, format: date-time }
+      - name: period
+        in: query
+        required: false
+        description: Named window. Do not send with `begin` or `end`.
+        schema:
+          type: string
+          enum: [12h, 15m, 1d, 1h, 1w, 24h, 30d, 3h, 60m, 6h, 7d]
+      - name: resolution_multiplier
+        in: query
+        required: false
+        schema:
+          type: integer
+          enum: [1, 2, 4, 8]
+          default: 1
+    responses:
+      "200":
+        description: The metric view.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/metric-view.yaml#/MetricView }
+            example:
+              category:
+                id: general
+                name: General
+                description: General cluster metrics
+              name: cpu
+              series:
+                - name: cpu
+                  title: CPU usage
+                  points:
+                    - period_begin: "2026-01-01T00:00:00Z"
+                      period_end: "2026-01-01T00:01:00Z"
+                      time: "2026-01-01T00:00:00Z"
+                      value: 0.25
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

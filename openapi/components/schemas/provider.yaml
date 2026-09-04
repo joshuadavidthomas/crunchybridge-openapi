@@ -1,0 +1,132 @@
+ProviderDisk:
+  type: object
+  required:
+    - rate
+  properties:
+    rate:
+      type: number
+      description: Per-GB disk price rate for non-warehouse plans.
+    rate_warehouse:
+      type:
+        - number
+        - "null"
+      description: Per-GB disk price rate for warehouse plans.
+  additionalProperties: true
+
+Plan:
+  type: object
+  required:
+    - display_name
+    - id
+    - memory
+    - vcpu
+  properties:
+    id:
+      type: string
+      description: Provider-specific plan identifier.
+    display_name:
+      type: string
+      description: Name shown to users.
+    cpu:
+      type: number
+      deprecated: true
+      description: Deprecated. Use `vcpu`.
+    vcpu:
+      type: number
+      description: Virtual CPU count, which may be fractional.
+    memory:
+      type: number
+      description: Memory in gigabytes, which may be fractional.
+    iops_baseline:
+      type:
+        - number
+        - "null"
+      description: Baseline storage IOPS when the provider publishes one.
+    iops_maximum:
+      type:
+        - number
+        - "null"
+      description: Maximum storage IOPS when the provider publishes one.
+    maximum_performance_limited:
+      type: boolean
+      description: Whether the plan limits maximum storage performance.
+    rate:
+      type: number
+      description: Plan price rate in cents.
+    region_ids:
+      description: Region IDs where the plan is available. Null means every region.
+      oneOf:
+        - type: array
+          items:
+            type: string
+        - type: "null"
+  additionalProperties: true
+
+Region:
+  type: object
+  required:
+    - display_name
+    - id
+    - location
+    - multiplier
+  properties:
+    id:
+      type: string
+      description: Provider-specific region identifier.
+    display_name:
+      type: string
+      description: Name shown to users.
+    location:
+      type: string
+      description: Geographic location of the region.
+    multiplier:
+      type: number
+      description: Regional price multiplier.
+  additionalProperties: true
+
+Provider:
+  type: object
+  required:
+    - disk
+    - display_name
+    - plans
+    - regions
+  properties:
+    id:
+      description: |
+        Cloud provider identifier. The declared source makes this optional and
+        nullable, while official examples and live responses always include it.
+      type:
+        - string
+        - "null"
+      enum:
+        - aws
+        - azure
+        - gcp
+        - null
+    display_name:
+      type: string
+      description: Name shown to users.
+    disk:
+      $ref: '#/ProviderDisk'
+    plans:
+      type: array
+      items:
+        $ref: '#/Plan'
+    regions:
+      type: array
+      items:
+        $ref: '#/Region'
+  additionalProperties: true
+
+ProviderList:
+  type: object
+  description: |
+    Available cloud providers. The declared source omits `providers` from its
+    required list, while official examples and live responses always include it.
+  properties:
+    providers:
+      type: array
+      items:
+        $ref: '#/Provider'
+  additionalProperties: true

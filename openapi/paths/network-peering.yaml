@@ -1,0 +1,176 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/NetworkId
+  get:
+    operationId: listNetworkPeerings
+    tags:
+      - Network peerings
+    summary: List network peerings
+    description: |
+      Returns peerings for a network. The endpoint accepts cursor pagination but
+      its documented response has no cursor metadata.
+    x-docs-url: https://docs.crunchybridge.com/api/network-peering#list-peerings
+    x-idempotent: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - name: limit
+        in: query
+        required: false
+        description: Maximum number of peerings to return.
+        schema:
+          type:
+            - integer
+            - "null"
+          minimum: 1
+          maximum: 200
+          default: 100
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order peerings.
+        schema:
+          type: string
+          enum:
+            - id
+          default: id
+    responses:
+      "200":
+        description: Network peerings.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network-peering.yaml#/PeeringList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createNetworkPeering
+    tags:
+      - Network peerings
+    summary: Create a network peering
+    description: |
+      Starts peering the Crunchy Bridge network with a customer network. The
+      first-party machine description omits request-body requiredness, but the
+      documented required `peer_identifier` makes a body necessary.
+    x-docs-url: https://docs.crunchybridge.com/api/network-peering#create-peering
+    x-idempotent: false
+    x-disruptive: true
+    x-long-running: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/network-peering.yaml#/PeeringCreateRequest
+    responses:
+      "201":
+        description: The new peering, normally in `creating` state.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network-peering.yaml#/Peering
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/NetworkId
+    - $ref: ../components/parameters/eids.yaml#/PeeringId
+  get:
+    operationId: getNetworkPeering
+    tags:
+      - Network peerings
+    summary: Get a network peering
+    description: Returns one network peering and its current status.
+    x-docs-url: https://docs.crunchybridge.com/api/network-peering#get-peering
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The network peering.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network-peering.yaml#/Peering
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyNetworkPeering
+    tags:
+      - Network peerings
+    summary: Delete a network peering
+    description: Starts removal of the network peering.
+    x-docs-url: https://docs.crunchybridge.com/api/network-peering#destroy-peering
+    x-disruptive: true
+    x-idempotent: true
+    x-long-running: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The peering being deleted.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network-peering.yaml#/Peering
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

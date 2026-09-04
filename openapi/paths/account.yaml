@@ -1,0 +1,59 @@
+account:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: getAccount
+    tags:
+      - Accounts
+    summary: Get the authenticated account
+    description: Returns the account associated with the supplied credential.
+    x-docs-url: https://docs.crunchybridge.com/api/account#get-account
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The authenticated account.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/account.yaml#/Account
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyAccount
+    tags:
+      - Accounts
+    summary: Delete the authenticated account
+    description: |
+      Deletes the account. The account must not be the sole administrator of a
+      team that owns provisioned clusters. Teams for which this account is the
+      only administrator are also deleted.
+    x-docs-url: https://docs.crunchybridge.com/api/account#destroy-account
+    x-destructive: true
+    x-idempotent: true
+    x-sensitive: true
+    responses:
+      "200":
+        description: The deleted account.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/account.yaml#/Account
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

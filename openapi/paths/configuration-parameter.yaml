@@ -1,0 +1,86 @@
+supported:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listSupportedConfigurationParameters
+    tags: [Configuration parameters]
+    summary: List supported configuration parameters
+    description: Returns the parameter catalog, including version bounds, valid values, and restart requirements.
+    x-docs-url: https://docs.crunchybridge.com/api/configuration-parameter#list-supported-cluster-configuration-parameters
+    x-idempotent: true
+    responses:
+      "200":
+        description: Supported configuration parameters.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/configuration-parameter.yaml#/SupportedConfigurationParameterList }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: listClusterConfigurationParameters
+    tags: [Configuration parameters]
+    summary: List cluster configuration parameters
+    description: Returns configured values; null values mean the component default applies.
+    x-docs-url: https://docs.crunchybridge.com/api/configuration-parameter#list-cluster-configuration-parameters
+    x-idempotent: true
+    responses: &parameterListResponses
+      "200":
+        description: Cluster configuration parameter values.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/configuration-parameter.yaml#/ClusterConfigurationParameterList }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  put:
+    operationId: updateClusterConfigurationParameters
+    tags: [Configuration parameters]
+    summary: Update cluster configuration parameters
+    description: Applies a batch of values or resets. When allowed, parameters marked `requires_restart` may restart Postgres.
+    x-docs-url: https://docs.crunchybridge.com/api/configuration-parameter#update-cluster-configuration-parameters
+    x-idempotent: true
+    x-disruptive: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/configuration-parameter.yaml#/ConfigurationParameterUpdateRequest }
+    responses: *parameterListResponses
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+    - $ref: ../components/parameters/identifiers.yaml#/ConfigurationParameterName
+  get:
+    operationId: getClusterConfigurationParameter
+    tags: [Configuration parameters]
+    summary: Get a cluster configuration parameter
+    description: Returns one fully qualified parameter such as `postgres:log_statement`.
+    x-docs-url: https://docs.crunchybridge.com/api/configuration-parameter#get-a-cluster-configuration-parameter
+    x-idempotent: true
+    responses:
+      "200":
+        description: The cluster configuration parameter.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/configuration-parameter.yaml#/ClusterConfigurationParameter }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

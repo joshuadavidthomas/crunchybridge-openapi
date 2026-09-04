@@ -1,0 +1,32 @@
+PostgresVersion:
+  type: object
+  description: A Postgres major version available for Crunchy Bridge clusters.
+  required:
+    - display_name
+    - id
+    - is_default
+    - major_version
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    display_name:
+      type: string
+      description: Version name shown to users.
+    is_default:
+      type: boolean
+      description: Whether new clusters use this version by default.
+    major_version:
+      type: integer
+      description: Postgres major version number.
+  additionalProperties: true
+
+PostgresVersionList:
+  type: object
+  required:
+    - postgres_versions
+  properties:
+    postgres_versions:
+      type: array
+      items:
+        $ref: '#/PostgresVersion'
+  additionalProperties: true

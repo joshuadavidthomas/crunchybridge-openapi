@@ -1,0 +1,79 @@
+QueryResultField:
+  type: object
+  properties:
+    name: { type: string }
+    type: { type: [string, "null"] }
+  additionalProperties: true
+
+Query:
+  type: object
+  required: [allow_write, async, cluster_id, id, is_blocked, sql, status]
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    allow_write: { type: boolean }
+    async: { type: boolean }
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    is_blocked: { type: boolean }
+    sql: { type: string }
+    status:
+      type: string
+      enum: [canceled, failed, pending, running, succeeded]
+    database_name: { type: [string, "null"] }
+    finished_at: { type: [string, "null"], format: date-time }
+    has_extended_result: { type: [boolean, "null"] }
+    last_error_message: { type: [string, "null"] }
+    last_run_duration_seconds: { type: [number, "null"], format: double }
+    next_run_at: { type: [string, "null"], format: date-time }
+    num_failures: { type: [integer, "null"], format: int64 }
+    result:
+      type: [array, "null"]
+      description: Query rows; cells may contain any JSON value.
+      items:
+        type: array
+        items: {}
+    result_fields:
+      type: array
+      items:
+        $ref: '#/QueryResultField'
+  additionalProperties: true
+
+QueryCreateRequest:
+  type: object
+  required: [sql]
+  not:
+    required: [async, skip_tx]
+    properties:
+      async: { const: true }
+      skip_tx: { const: true }
+  properties:
+    sql: { type: string }
+    allow_write: { type: boolean }
+    async:
+      type: boolean
+      description: Cannot be true when `skip_tx` is true.
+    is_insight_query:
+      type: boolean
+      description: Private Dashboard mode requiring a signed request.
+    is_system_query:
+      type: boolean
+      description: Privileged Snowflake-only mode.
+    skip_tx:
+      type: boolean
+      description: "Runs outside the protective transaction and permits writes; cannot accompany `async: true`."
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    database_name: { type: [string, "null"] }
+    created_at:
+      type: [string, "null"]
+      format: date-time
+      description: Optional documented field with no published semantics.
+    expires_at:
+      type: [string, "null"]
+      format: date-time
+      description: Optional documented field with no published semantics.
+    n:
+      type: [string, "null"]
+      description: Optional documented field with no published semantics.
+  additionalProperties: false

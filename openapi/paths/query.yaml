@@ -1,0 +1,56 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  post:
+    operationId: createQuery
+    tags: [Queries]
+    summary: Run a query
+    description: |
+      Runs SQL synchronously or queues it asynchronously. `async: true` and
+      `skip_tx: true` cannot be combined. `skip_tx` permits unrestricted writes;
+      `is_insight_query` and `is_system_query` require private privileged contexts.
+      Prose mentions follow-up query operations, but none are public endpoints.
+    x-docs-url: https://docs.crunchybridge.com/api/query#create-query
+    x-idempotent: false
+    x-sensitive: true
+    x-disruptive: true
+    x-destructive: true
+    x-long-running: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/query.yaml#/QueryCreateRequest }
+          example:
+            cluster_id: q7dvmz3ukfh5tmg4hy2tqzvama
+            sql: SELECT 1
+    responses:
+      "201":
+        description: The query state and any inline result.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+          Idempotency-Key: { $ref: ../components/headers/common.yaml#/IdempotencyKey }
+          Idempotency-Replay: { $ref: ../components/headers/common.yaml#/IdempotencyReplay }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/query.yaml#/Query }
+            example:
+              id: q7dvmz3ukfh5tmg4hy2tqzvama
+              allow_write: false
+              async: false
+              cluster_id: q7dvmz3ukfh5tmg4hy2tqzvama
+              is_blocked: false
+              sql: SELECT 1
+              status: succeeded
+              result:
+                - [1]
+              result_fields:
+                - name: "?column?"
+                  type: int4
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "409": { $ref: ../components/responses/errors.yaml#/IdempotencyConflict }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

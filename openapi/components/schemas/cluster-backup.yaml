@@ -1,0 +1,115 @@
+ClusterBackup:
+  type: object
+  properties:
+    finished_at:
+      type: string
+      format: date-time
+    lsn_start:
+      type: [string, "null"]
+    lsn_stop:
+      type: [string, "null"]
+    major_version:
+      type: [integer, "null"]
+      format: int32
+    name:
+      type: string
+    size_bytes:
+      type: [integer, "null"]
+      format: int64
+    started_at:
+      type: [string, "null"]
+      format: date-time
+    type:
+      type: string
+      description: Backup type; the docs mention full, differential, and incremental backups without declaring an enum.
+  additionalProperties: true
+
+ClusterBackupList:
+  type: object
+  required: [backups]
+  properties:
+    backups:
+      type: array
+      items:
+        $ref: '#/ClusterBackup'
+  additionalProperties: true
+
+AWSBackupToken:
+  type: object
+  required: [s3_bucket, s3_key, s3_key_secret, s3_region, s3_token]
+  properties:
+    s3_bucket: { type: string }
+    s3_key: { type: string }
+    s3_key_secret: { type: string }
+    s3_region: { type: string }
+    s3_token: { type: string }
+    s3_kms_key_id: { type: [string, "null"] }
+  additionalProperties: true
+
+AzureBackupToken:
+  type: object
+  required: [azure_account, azure_container, azure_key, azure_key_type]
+  properties:
+    azure_account: { type: string }
+    azure_container: { type: string }
+    azure_key: { type: string }
+    azure_key_type:
+      type: string
+      enum: [sas, shared]
+  additionalProperties: true
+
+GCPBackupToken:
+  type: object
+  required: [gcs_bucket]
+  properties:
+    gcs_bucket: { type: string }
+  additionalProperties: true
+
+ClusterBackupTokenBase:
+  type: object
+  required: [cluster_id, id, repo_path, stanza, team_id, type]
+  properties:
+    id:
+      allOf:
+        - $ref: ./common.yaml#/EID
+      description: Ephemeral response identifier; Crunchy Bridge does not persist this token resource.
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    repo_path: { type: string }
+    stanza: { type: string }
+    team_id:
+      $ref: ./common.yaml#/EID
+    type:
+      type: string
+      enum: [azure, gcs, s3]
+  additionalProperties: true
+
+ClusterBackupToken:
+  oneOf:
+    - allOf:
+        - $ref: '#/ClusterBackupTokenBase'
+        - type: object
+          required: [aws]
+          properties:
+            type: { const: s3 }
+            aws: { $ref: '#/AWSBackupToken' }
+            azure: false
+            gcp: false
+    - allOf:
+        - $ref: '#/ClusterBackupTokenBase'
+        - type: object
+          required: [azure]
+          properties:
+            type: { const: azure }
+            aws: false
+            azure: { $ref: '#/AzureBackupToken' }
+            gcp: false
+    - allOf:
+        - $ref: '#/ClusterBackupTokenBase'
+        - type: object
+          required: [gcp]
+          properties:
+            type: { const: gcs }
+            aws: false
+            azure: false
+            gcp: { $ref: '#/GCPBackupToken' }

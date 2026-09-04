@@ -1,0 +1,95 @@
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: getClusterUpgrade
+    tags: [Cluster upgrades]
+    summary: Get a cluster upgrade
+    description: Returns planned and active upgrade work. An empty `operations` array means no work remains.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-upgrade#get-upgrade-status
+    x-idempotent: true
+    responses: &upgradeOk
+      "200":
+        description: The cluster upgrade state.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-upgrade.yaml#/ClusterUpgrade }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  post:
+    operationId: createClusterUpgrade
+    tags: [Cluster upgrades]
+    summary: Start a cluster upgrade
+    description: Starts a refresh, resize, or major-version upgrade. An empty request starts minor-version maintenance; request-body presence remains unconfirmed.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-upgrade#upgrade-cluster
+    x-idempotent: false
+    x-disruptive: true
+    x-long-running: true
+    x-cost-bearing: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/cluster-upgrade.yaml#/ClusterUpgradeCreateRequest }
+    responses:
+      "201":
+        description: The new upgrade state.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+          Idempotency-Key: { $ref: ../components/headers/common.yaml#/IdempotencyKey }
+          Idempotency-Replay: { $ref: ../components/headers/common.yaml#/IdempotencyReplay }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-upgrade.yaml#/ClusterUpgrade }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "409": { $ref: ../components/responses/errors.yaml#/IdempotencyConflict }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  put:
+    operationId: updateClusterUpgrade
+    tags: [Cluster upgrades]
+    summary: Update a cluster upgrade
+    description: Reschedules or changes upgrade targets before failover. Plan or storage changes may rebuild replacement infrastructure.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-upgrade#update-upgrade-cluster
+    x-idempotent: true
+    x-disruptive: true
+    x-long-running: true
+    x-cost-bearing: true
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/cluster-upgrade.yaml#/ClusterUpgradeUpdateRequest }
+    responses:
+      "201":
+        description: The updated upgrade state. This update operation documents the unusual `201` status.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-upgrade.yaml#/ClusterUpgrade }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  delete:
+    operationId: cancelClusterUpgrade
+    tags: [Cluster upgrades]
+    summary: Cancel a cluster upgrade
+    description: Cancels upgrade work that has not passed its cancellation point. Current docs return `200`; an old CLI fixture used `204`.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-upgrade#cancel-upgrade
+    x-idempotent: true
+    x-disruptive: true
+    x-long-running: true
+    responses: *upgradeOk

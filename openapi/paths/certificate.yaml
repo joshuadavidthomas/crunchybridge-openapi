@@ -1,0 +1,36 @@
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/TeamId
+  get:
+    operationId: getTeamCertificate
+    tags:
+      - Certificates
+    summary: Get a team certificate
+    description: Returns the team's public X.509 certificate chain in PEM form.
+    x-docs-url: https://docs.crunchybridge.com/api/certificate#get-certificate
+    x-idempotent: true
+    responses:
+      "200":
+        description: The public certificate chain.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/pem-certificate-chain:
+            schema:
+              type: string
+            example: |
+              -----BEGIN CERTIFICATE-----
+              REDACTED
+              -----END CERTIFICATE-----
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

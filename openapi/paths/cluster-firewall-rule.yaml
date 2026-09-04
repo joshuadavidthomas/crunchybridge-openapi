@@ -1,0 +1,179 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: listClusterFirewallRules
+    deprecated: true
+    tags:
+      - Firewall rules
+    summary: List firewall rules through a cluster
+    description: |
+      Deprecated. Obtain the cluster's `network_id`, then use
+      `GET /networks/{network_id}/firewall-rules`.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-firewall-rule#list-firewall-rules
+    x-idempotent: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order rules.
+        schema:
+          type: string
+          enum:
+            - id
+            - rule
+          default: id
+    responses:
+      "200":
+        description: Firewall rules for the cluster's network.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRuleList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createClusterFirewallRule
+    deprecated: true
+    tags:
+      - Firewall rules
+    summary: Create a firewall rule through a cluster
+    description: |
+      Deprecated. Obtain the cluster's `network_id`, then use
+      `POST /networks/{network_id}/firewall-rules`. The first-party machine
+      description omits request-body requiredness, but `rule` is required.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-firewall-rule#create-firewall-rule
+    x-idempotent: false
+    x-disruptive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/firewall-rule.yaml#/ClusterFirewallRuleCreateRequest
+    responses:
+      "201":
+        description: The new firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+    - $ref: ../components/parameters/eids.yaml#/RuleId
+  put:
+    operationId: updateClusterFirewallRule
+    deprecated: true
+    tags:
+      - Firewall rules
+    summary: Update a firewall rule through a cluster
+    description: |
+      Deprecated. Obtain the cluster's `network_id`, then use
+      `PATCH /networks/{network_id}/firewall-rules/{rule_id}`. This legacy PUT
+      requires `rule`; the first-party machine description omits body requiredness.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-firewall-rule#update-firewall-rule
+    x-idempotent: true
+    x-disruptive: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/firewall-rule.yaml#/ClusterFirewallRuleUpdateRequest
+    responses:
+      "200":
+        description: The updated firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyClusterFirewallRule
+    deprecated: true
+    tags:
+      - Firewall rules
+    summary: Delete a firewall rule through a cluster
+    description: |
+      Deprecated. Obtain the cluster's `network_id`, then use
+      `DELETE /networks/{network_id}/firewall-rules/{rule_id}`.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-firewall-rule#destroy-firewall-rule
+    x-disruptive: true
+    x-idempotent: true
+    responses:
+      "200":
+        description: The deleted firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

@@ -1,0 +1,318 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: Crunchy Bridge API
+  version: 0.1.0
+  summary: An unofficial description of the Crunchy Bridge API.
+  description: |
+    Use the Crunchy Bridge API to manage accounts, teams, clusters, and
+    related resources. This document is maintained from the public API
+    documentation and is not published or endorsed by Crunchy Data.
+  license:
+    name: MIT
+    identifier: MIT
+  contact:
+    name: crunchybridge-openapi maintainers
+    url: https://github.com/joshuadavidthomas/crunchybridge-openapi
+servers:
+  - url: https://api.crunchybridge.com
+    description: Production
+externalDocs:
+  description: Crunchy Bridge API documentation
+  url: https://docs.crunchybridge.com/api
+security:
+  - bearerAuth: []
+tags:
+  - name: Access tokens
+    description: Short-lived credentials issued from API keys.
+  - name: Accounts
+    description: The currently authenticated user account.
+  - name: Certificates
+    description: Team certificate chains.
+  - name: Changelogs
+    description: Published Crunchy Bridge changes.
+  - name: Cluster backups
+    description: Backup history and temporary pgBackRest credentials.
+  - name: Cluster loggers
+    description: External syslog forwarding destinations.
+  - name: Cluster replicas
+    description: Read replicas and replica detachment.
+  - name: Cluster upgrades
+    description: Refresh, resize, and major-version upgrade work.
+  - name: Clusters
+    description: Managed Postgres clusters and lifecycle actions.
+  - name: Configuration parameters
+    description: Supported and cluster-specific Postgres and PgBouncer settings.
+  - name: Events
+    description: Audit events and event polling.
+  - name: Firewall rules
+    description: Network access rules, including deprecated cluster routes.
+  - name: Metric views
+    description: Chart-ready cluster metric series.
+  - name: Network peerings
+    description: Private routing between Crunchy Bridge and customer networks.
+  - name: Networks
+    description: Provider networks shared by team clusters.
+  - name: Postgres versions
+    description: Postgres versions available for clusters.
+  - name: Providers
+    description: Cloud providers, plans, regions, and pricing.
+  - name: Private links
+    description: Provider private-link services and endpoint connections.
+  - name: Postgres roles
+    description: Cluster database roles and credentials.
+  - name: Queries
+    description: Synchronous and asynchronous SQL execution.
+  - name: Team members
+    description: Team memberships and invitations.
+  - name: Teams
+    description: Teams, access policy, billing, and support settings.
+paths:
+  /access-tokens:
+    $ref: ./paths/access-token.yaml#/collection
+  /access-tokens/{access_token_id}:
+    $ref: ./paths/access-token.yaml#/item
+  /account:
+    $ref: ./paths/account.yaml#/account
+  /changelogs:
+    $ref: ./paths/changelog.yaml#/collection
+  /changelogs/{changelog_id_or_name}:
+    $ref: ./paths/changelog.yaml#/item
+  /clusters:
+    $ref: ./paths/cluster.yaml#/collection
+  /clusters/{cluster_id}:
+    $ref: ./paths/cluster.yaml#/item
+  /clusters/{cluster_id}/status:
+    $ref: ./paths/cluster.yaml#/status
+  /clusters/{cluster_id}/backups:
+    $ref: ./paths/cluster-backup.yaml#/backups
+  /clusters/{cluster_id}/backup-tokens:
+    $ref: ./paths/cluster-backup.yaml#/backupTokens
+  /clusters/{cluster_id}/configuration-parameters:
+    $ref: ./paths/configuration-parameter.yaml#/collection
+  /clusters/{cluster_id}/configuration-parameters/{configuration_parameter_name}:
+    $ref: ./paths/configuration-parameter.yaml#/item
+  /clusters/{cluster_id}/forks:
+    $ref: ./paths/cluster.yaml#/forks
+  /clusters/{cluster_id}/actions/detach:
+    $ref: ./paths/cluster-replica.yaml#/detach
+  /clusters/{cluster_id}/actions/disable-ha:
+    $ref: ./paths/cluster.yaml#/disableHa
+  /clusters/{cluster_id}/actions/enable-ha:
+    $ref: ./paths/cluster.yaml#/enableHa
+  /clusters/{cluster_id}/actions/ping:
+    $ref: ./paths/cluster.yaml#/ping
+  /clusters/{cluster_id}/actions/restart:
+    $ref: ./paths/cluster.yaml#/restart
+  /clusters/{cluster_id}/actions/resume:
+    $ref: ./paths/cluster.yaml#/resume
+  /clusters/{cluster_id}/actions/start-backup:
+    $ref: ./paths/cluster.yaml#/startBackup
+  /clusters/{cluster_id}/actions/suspend:
+    $ref: ./paths/cluster.yaml#/suspend
+  /clusters/{cluster_id}/actions/tailscale-connect:
+    $ref: ./paths/cluster.yaml#/tailscaleConnect
+  /clusters/{cluster_id}/actions/tailscale-disconnect:
+    $ref: ./paths/cluster.yaml#/tailscaleDisconnect
+  /clusters/{cluster_id}/loggers:
+    $ref: ./paths/cluster-logger.yaml#/collection
+  /clusters/{cluster_id}/loggers/{logger_id}:
+    $ref: ./paths/cluster-logger.yaml#/item
+  /clusters/{cluster_id}/replicas:
+    $ref: ./paths/cluster-replica.yaml#/replicas
+  /clusters/{cluster_id}/roles:
+    $ref: ./paths/postgres-role.yaml#/collection
+  /clusters/{cluster_id}/roles/{role_name}:
+    $ref: ./paths/postgres-role.yaml#/item
+  /clusters/{cluster_id}/upgrade:
+    $ref: ./paths/cluster-upgrade.yaml#/item
+  /clusters/{cluster_id}/firewall:
+    $ref: ./paths/cluster-firewall-rule.yaml#/collection
+  /clusters/{cluster_id}/firewall/{rule_id}:
+    $ref: ./paths/cluster-firewall-rule.yaml#/item
+  /clusters/{cluster_id}/private-link:
+    $ref: ./paths/private-link.yaml#/item
+  /clusters/{cluster_id}/private-link/connections:
+    $ref: ./paths/private-link-connection.yaml#/collection
+  /clusters/{cluster_id}/private-link/connections/{connection_id}/approve:
+    $ref: ./paths/private-link-connection.yaml#/approve
+  /clusters/{cluster_id}/private-link/connections/{connection_id}/reject:
+    $ref: ./paths/private-link-connection.yaml#/reject
+  /events:
+    $ref: ./paths/event.yaml#/collection
+  /events/{event_id}:
+    $ref: ./paths/event.yaml#/item
+  /configuration-parameters:
+    $ref: ./paths/configuration-parameter.yaml#/supported
+  /metric-views/{name}:
+    $ref: ./paths/metric-view.yaml#/item
+  /networks:
+    $ref: ./paths/network.yaml#/collection
+  /networks/{network_id}:
+    $ref: ./paths/network.yaml#/item
+  /networks/{network_id}/firewall-rules:
+    $ref: ./paths/network-firewall-rule.yaml#/collection
+  /networks/{network_id}/firewall-rules/{rule_id}:
+    $ref: ./paths/network-firewall-rule.yaml#/item
+  /networks/{network_id}/peerings:
+    $ref: ./paths/network-peering.yaml#/collection
+  /networks/{network_id}/peerings/{peering_id}:
+    $ref: ./paths/network-peering.yaml#/item
+  /postgres-versions:
+    $ref: ./paths/postgres-version.yaml#/collection
+  /postgres-versions/{postgres_version_id}:
+    $ref: ./paths/postgres-version.yaml#/item
+  /providers:
+    $ref: ./paths/provider.yaml#/collection
+  /queries:
+    $ref: ./paths/query.yaml#/collection
+  /teams:
+    $ref: ./paths/team.yaml#/collection
+  /teams/{team_id}:
+    $ref: ./paths/team.yaml#/item
+  /teams/{team_id}.pem:
+    $ref: ./paths/certificate.yaml#/item
+  /teams/{team_id}/members:
+    $ref: ./paths/team-member.yaml#/collection
+  /teams/{team_id}/members/{account_id}:
+    $ref: ./paths/team-member.yaml#/item
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        A long-lived Crunchy Bridge API key or a short-lived access token.
+  schemas:
+    EID:
+      $ref: ./components/schemas/common.yaml#/EID
+    Error:
+      $ref: ./components/schemas/common.yaml#/Error
+    Cluster:
+      $ref: ./components/schemas/cluster.yaml#/Cluster
+    ClusterList:
+      $ref: ./components/schemas/cluster.yaml#/ClusterList
+    ClusterStatus:
+      $ref: ./components/schemas/cluster.yaml#/ClusterStatus
+    ClusterOperation:
+      $ref: ./components/schemas/cluster.yaml#/ClusterOperation
+    ClusterCreateRequest:
+      $ref: ./components/schemas/cluster.yaml#/ClusterCreateRequest
+    ClusterUpdateRequest:
+      $ref: ./components/schemas/cluster.yaml#/ClusterUpdateRequest
+    ClusterForkRequest:
+      $ref: ./components/schemas/cluster.yaml#/ClusterForkRequest
+    ClusterRestartRequest:
+      $ref: ./components/schemas/cluster.yaml#/ClusterRestartRequest
+    TailscaleConnectRequest:
+      $ref: ./components/schemas/cluster.yaml#/TailscaleConnectRequest
+    ClusterBackup:
+      $ref: ./components/schemas/cluster-backup.yaml#/ClusterBackup
+    ClusterBackupList:
+      $ref: ./components/schemas/cluster-backup.yaml#/ClusterBackupList
+    ClusterBackupToken:
+      $ref: ./components/schemas/cluster-backup.yaml#/ClusterBackupToken
+    ClusterLogger:
+      $ref: ./components/schemas/cluster-logger.yaml#/ClusterLogger
+    ClusterLoggerList:
+      $ref: ./components/schemas/cluster-logger.yaml#/ClusterLoggerList
+    ClusterLoggerCreateRequest:
+      $ref: ./components/schemas/cluster-logger.yaml#/ClusterLoggerCreateRequest
+    ClusterLoggerUpdateRequest:
+      $ref: ./components/schemas/cluster-logger.yaml#/ClusterLoggerUpdateRequest
+    ClusterReplicaCreateRequest:
+      $ref: ./components/schemas/cluster-replica.yaml#/ClusterReplicaCreateRequest
+    ClusterUpgrade:
+      $ref: ./components/schemas/cluster-upgrade.yaml#/ClusterUpgrade
+    ClusterUpgradeCreateRequest:
+      $ref: ./components/schemas/cluster-upgrade.yaml#/ClusterUpgradeCreateRequest
+    ClusterUpgradeUpdateRequest:
+      $ref: ./components/schemas/cluster-upgrade.yaml#/ClusterUpgradeUpdateRequest
+    SupportedConfigurationParameter:
+      $ref: ./components/schemas/configuration-parameter.yaml#/SupportedConfigurationParameter
+    SupportedConfigurationParameterList:
+      $ref: ./components/schemas/configuration-parameter.yaml#/SupportedConfigurationParameterList
+    ClusterConfigurationParameter:
+      $ref: ./components/schemas/configuration-parameter.yaml#/ClusterConfigurationParameter
+    ClusterConfigurationParameterList:
+      $ref: ./components/schemas/configuration-parameter.yaml#/ClusterConfigurationParameterList
+    ConfigurationParameterUpdateRequest:
+      $ref: ./components/schemas/configuration-parameter.yaml#/ConfigurationParameterUpdateRequest
+    MetricView:
+      $ref: ./components/schemas/metric-view.yaml#/MetricView
+    PostgresRole:
+      $ref: ./components/schemas/postgres-role.yaml#/PostgresRole
+    PostgresRoleList:
+      $ref: ./components/schemas/postgres-role.yaml#/PostgresRoleList
+    PostgresRoleUpdateRequest:
+      $ref: ./components/schemas/postgres-role.yaml#/PostgresRoleUpdateRequest
+    Query:
+      $ref: ./components/schemas/query.yaml#/Query
+    QueryCreateRequest:
+      $ref: ./components/schemas/query.yaml#/QueryCreateRequest
+    CursorPage:
+      $ref: ./components/schemas/pagination.yaml#/CursorPage
+    AccessTokenCreateRequest:
+      $ref: ./components/schemas/access-token.yaml#/AccessTokenCreateRequest
+    AccessToken:
+      $ref: ./components/schemas/access-token.yaml#/AccessToken
+    Account:
+      $ref: ./components/schemas/account.yaml#/Account
+    Event:
+      $ref: ./components/schemas/event.yaml#/Event
+    EventList:
+      $ref: ./components/schemas/event.yaml#/EventList
+    Changelog:
+      $ref: ./components/schemas/changelog.yaml#/Changelog
+    ChangelogList:
+      $ref: ./components/schemas/changelog.yaml#/ChangelogList
+    Provider:
+      $ref: ./components/schemas/provider.yaml#/Provider
+    ProviderList:
+      $ref: ./components/schemas/provider.yaml#/ProviderList
+    PostgresVersion:
+      $ref: ./components/schemas/postgres-version.yaml#/PostgresVersion
+    PostgresVersionList:
+      $ref: ./components/schemas/postgres-version.yaml#/PostgresVersionList
+    Team:
+      $ref: ./components/schemas/team.yaml#/Team
+    TeamList:
+      $ref: ./components/schemas/team.yaml#/TeamList
+    TeamCreateRequest:
+      $ref: ./components/schemas/team.yaml#/TeamCreateRequest
+    TeamUpdateRequest:
+      $ref: ./components/schemas/team.yaml#/TeamUpdateRequest
+    TeamMember:
+      $ref: ./components/schemas/team-member.yaml#/TeamMember
+    TeamMemberList:
+      $ref: ./components/schemas/team-member.yaml#/TeamMemberList
+    TeamMemberCreateRequest:
+      $ref: ./components/schemas/team-member.yaml#/TeamMemberCreateRequest
+    TeamMemberUpdateRequest:
+      $ref: ./components/schemas/team-member.yaml#/TeamMemberUpdateRequest
+    Network:
+      $ref: ./components/schemas/network.yaml#/Network
+    NetworkList:
+      $ref: ./components/schemas/network.yaml#/NetworkList
+    NetworkUpdateRequest:
+      $ref: ./components/schemas/network.yaml#/NetworkUpdateRequest
+    FirewallRule:
+      $ref: ./components/schemas/firewall-rule.yaml#/FirewallRule
+    FirewallRuleList:
+      $ref: ./components/schemas/firewall-rule.yaml#/FirewallRuleList
+    FirewallRuleCreateRequest:
+      $ref: ./components/schemas/firewall-rule.yaml#/FirewallRuleCreateRequest
+    FirewallRuleUpdateRequest:
+      $ref: ./components/schemas/firewall-rule.yaml#/FirewallRuleUpdateRequest
+    Peering:
+      $ref: ./components/schemas/network-peering.yaml#/Peering
+    PeeringList:
+      $ref: ./components/schemas/network-peering.yaml#/PeeringList
+    PeeringCreateRequest:
+      $ref: ./components/schemas/network-peering.yaml#/PeeringCreateRequest
+    ClusterPrivateLink:
+      $ref: ./components/schemas/private-link.yaml#/ClusterPrivateLink
+    ClusterPrivateLinkConnection:
+      $ref: ./components/schemas/private-link.yaml#/ClusterPrivateLinkConnection
+    ClusterPrivateLinkConnectionList:
+      $ref: ./components/schemas/private-link.yaml#/ClusterPrivateLinkConnectionList

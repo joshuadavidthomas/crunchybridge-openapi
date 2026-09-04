@@ -1,0 +1,31 @@
+ChangelogIdOrName:
+  name: changelog_id_or_name
+  in: path
+  required: true
+  description: The changelog entry's EID or unique name.
+  schema:
+    type: string
+
+ConfigurationParameterName:
+  name: configuration_parameter_name
+  in: path
+  required: true
+  description: Fully qualified configuration parameter name, including its component prefix and colon.
+  schema:
+    type: string
+
+RoleName:
+  name: role_name
+  in: path
+  required: true
+  description: Postgres role name. Built-ins include `application`, `postgres`, `user`, and deprecated `default`; account roles use `u_<account_id>`.
+  schema:
+    type: string
+
+PostgresVersionId:
+  name: postgres_version_id
+  in: path
+  required: true
+  description: The Postgres version's EID or major version number, such as `17`.
+  schema:
+    type: string

@@ -1,0 +1,108 @@
+FirewallRuleKind:
+  type: string
+  enum:
+    - egress
+    - ingress
+
+FirewallRule:
+  type: object
+  required:
+    - id
+    - network_id
+    - rule
+    - team_id
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    description:
+      type:
+        - string
+        - "null"
+    kind:
+      description: Rule direction. Legacy rules may return null.
+      oneOf:
+        - $ref: '#/FirewallRuleKind'
+        - type: "null"
+    network_id:
+      $ref: ./common.yaml#/EID
+    rule:
+      type: string
+      description: IPv4 or IPv6 network in CIDR notation.
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+FirewallRuleList:
+  type: object
+  description: |
+    Firewall rules. List endpoints accept cursor inputs but do not document
+    `has_more` or `next_cursor` in this response.
+  required:
+    - firewall_rules
+  properties:
+    firewall_rules:
+      type: array
+      items:
+        $ref: '#/FirewallRule'
+  additionalProperties: true
+
+FirewallRuleCreateRequest:
+  type: object
+  required:
+    - rule
+  properties:
+    description:
+      type:
+        - string
+        - "null"
+    kind:
+      description: Rule direction. Omission creates an ingress rule.
+      oneOf:
+        - $ref: '#/FirewallRuleKind'
+        - type: "null"
+    rule:
+      type: string
+      description: IPv4 or IPv6 network in CIDR notation. Rules cannot overlap.
+  additionalProperties: false
+
+FirewallRuleUpdateRequest:
+  type: object
+  properties:
+    description:
+      type:
+        - string
+        - "null"
+    rule:
+      type:
+        - string
+        - "null"
+      description: IPv4 or IPv6 network in CIDR notation. Rules cannot overlap.
+  additionalProperties: false
+
+ClusterFirewallRuleCreateRequest:
+  type: object
+  required:
+    - rule
+  properties:
+    description:
+      type:
+        - string
+        - "null"
+    rule:
+      type: string
+      description: IPv4 or IPv6 network in CIDR notation. Rules cannot overlap.
+  additionalProperties: false
+
+ClusterFirewallRuleUpdateRequest:
+  type: object
+  required:
+    - rule
+  properties:
+    description:
+      type:
+        - string
+        - "null"
+    rule:
+      type: string
+      description: IPv4 or IPv6 network in CIDR notation. Rules cannot overlap.
+  additionalProperties: false

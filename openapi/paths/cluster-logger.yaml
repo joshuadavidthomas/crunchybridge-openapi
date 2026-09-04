@@ -1,0 +1,133 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: listClusterLoggers
+    tags: [Cluster loggers]
+    summary: List cluster loggers
+    description: Returns log forwarding destinations. Templates may contain ingestion credentials and the documented envelope omits cursor metadata.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-logger#list-loggers
+    x-idempotent: true
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [host_and_port, id]
+          default: id
+    responses:
+      "200":
+        description: Cluster loggers.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-logger.yaml#/ClusterLoggerList }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  post:
+    operationId: createClusterLogger
+    tags: [Cluster loggers]
+    summary: Create a cluster logger
+    description: Adds a syslog forwarding destination. The required request fields make a body necessary despite omitted body-level requiredness in Apiary.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-logger#create-logger
+    x-idempotent: false
+    x-sensitive: true
+    x-disruptive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/cluster-logger.yaml#/ClusterLoggerCreateRequest }
+    responses:
+      "201":
+        description: The new logger.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+          Idempotency-Key: { $ref: ../components/headers/common.yaml#/IdempotencyKey }
+          Idempotency-Replay: { $ref: ../components/headers/common.yaml#/IdempotencyReplay }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-logger.yaml#/ClusterLogger }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "409": { $ref: ../components/responses/errors.yaml#/IdempotencyConflict }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+    - $ref: ../components/parameters/eids.yaml#/LoggerId
+  get:
+    operationId: getClusterLogger
+    tags: [Cluster loggers]
+    summary: Get a cluster logger
+    description: Returns one log forwarding destination, including its potentially credential-bearing template.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-logger#get-logger
+    x-idempotent: true
+    x-sensitive: true
+    responses: &loggerResponses
+      "200":
+        description: The cluster logger.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-logger.yaml#/ClusterLogger }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+  put:
+    operationId: updateClusterLogger
+    tags: [Cluster loggers]
+    summary: Replace a cluster logger
+    description: Replaces the destination settings; the endpoint documents `200`, not an upsert `201`.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-logger#update-logger
+    x-idempotent: true
+    x-sensitive: true
+    x-disruptive: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../components/schemas/cluster-logger.yaml#/ClusterLoggerUpdateRequest }
+    responses: *loggerResponses
+  delete:
+    operationId: destroyClusterLogger
+    tags: [Cluster loggers]
+    summary: Delete a cluster logger
+    description: Removes a forwarding destination and may stop external log visibility.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-logger#destroy-logger
+    x-idempotent: true
+    x-sensitive: true
+    x-disruptive: true
+    responses:
+      "200":
+        description: The deleted cluster logger.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-logger.yaml#/ClusterLogger }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "410": { $ref: ../components/responses/errors.yaml#/Gone }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

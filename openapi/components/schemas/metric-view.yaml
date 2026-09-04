@@ -1,0 +1,59 @@
+MetricViewCategory:
+  type: object
+  required: [description, id, name]
+  properties:
+    id:
+      type: string
+      enum: [general, pgbouncer]
+    description: { type: string }
+    name: { type: string }
+  additionalProperties: true
+
+MetricsSeriesInterval:
+  type: object
+  required: [period_begin, period_end, time, value]
+  properties:
+    period_begin: { type: string, format: date-time }
+    period_end: { type: string, format: date-time }
+    time:
+      type: string
+      format: date-time
+      deprecated: true
+      description: Deprecated. Use `period_begin`.
+    value:
+      oneOf:
+        - type: number
+        - type: string
+  additionalProperties: true
+
+MetricsSeries:
+  type: object
+  required: [name, points, title]
+  properties:
+    name: { type: string }
+    points:
+      type: array
+      items:
+        $ref: '#/MetricsSeriesInterval'
+    title: { type: string }
+    discriminator: { type: string }
+    is_empty: { type: boolean }
+    min: { type: [integer, "null"], format: int64 }
+    max: { type: [integer, "null"], format: int64 }
+    unit: { type: [string, "null"] }
+  additionalProperties: true
+
+MetricView:
+  type: object
+  required: [category, name, series]
+  properties:
+    category:
+      $ref: '#/MetricViewCategory'
+    name:
+      type: string
+      enum: [cpu, disk-usage, iops, load-average, memory, network-usage, pgbouncer-client-connections, pgbouncer-network-usage, pgbouncer-performance, pgbouncer-server-connections, postgres-connections, replication-lag]
+    series:
+      type: array
+      items:
+        $ref: '#/MetricsSeries'
+  additionalProperties: true

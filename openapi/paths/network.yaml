@@ -1,0 +1,125 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listNetworks
+    tags:
+      - Networks
+    summary: List networks
+    description: Returns networks visible to the caller.
+    x-docs-url: https://docs.crunchybridge.com/api/network#list-networks
+    x-idempotent: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order networks.
+        schema:
+          type: string
+          enum:
+            - id
+          default: id
+      - name: team_id
+        in: query
+        required: false
+        description: Filter networks to one team.
+        schema:
+          oneOf:
+            - $ref: ../components/schemas/common.yaml#/EID
+            - type: "null"
+    responses:
+      "200":
+        description: A page of networks.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network.yaml#/NetworkList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/NetworkId
+  get:
+    operationId: getNetwork
+    tags:
+      - Networks
+    summary: Get a network
+    description: Returns a network visible to the caller.
+    x-docs-url: https://docs.crunchybridge.com/api/network#get-network
+    x-idempotent: true
+    responses:
+      "200":
+        description: The network.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network.yaml#/Network
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  patch:
+    operationId: updateNetwork
+    tags:
+      - Networks
+    summary: Update a network
+    description: Updates the human-readable network name.
+    x-docs-url: https://docs.crunchybridge.com/api/network#update-network
+    x-idempotent: false
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/network.yaml#/NetworkUpdateRequest
+    responses:
+      "200":
+        description: The updated network.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/network.yaml#/Network
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

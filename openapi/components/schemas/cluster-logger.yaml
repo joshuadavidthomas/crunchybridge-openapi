@@ -1,0 +1,63 @@
+ClusterLogger:
+  type: object
+  required: [cluster_id, forward_connection_logs, host, host_and_port, id, port, team_id, template, tls_verify_disabled]
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    description: { type: string }
+    forward_connection_logs: { type: boolean }
+    host: { type: string }
+    host_and_port: { type: string }
+    port:
+      type: integer
+      format: int64
+    team_id:
+      $ref: ./common.yaml#/EID
+    template:
+      type: string
+      description: Syslog message template. It may contain provider ingestion credentials.
+    tls_verify_disabled: { type: boolean }
+  additionalProperties: true
+
+ClusterLoggerList:
+  type: object
+  required: [loggers]
+  properties:
+    loggers:
+      type: array
+      items:
+        $ref: '#/ClusterLogger'
+  additionalProperties: true
+
+ClusterLoggerCreateRequest:
+  type: object
+  required: [host, port, template]
+  properties:
+    description: { type: string }
+    forward_connection_logs:
+      type: boolean
+      default: false
+      description: Forward connection logs as well as Postgres logs. Omission defaults to false.
+    host: { type: string }
+    port:
+      type: integer
+      format: int64
+    template: { type: string }
+    tls_verify_disabled: { type: boolean }
+  additionalProperties: false
+
+ClusterLoggerUpdateRequest:
+  type: object
+  required: [host, port, template]
+  properties:
+    description: { type: string }
+    forward_connection_logs: { type: [boolean, "null"] }
+    host: { type: string }
+    port:
+      type: integer
+      format: int64
+    template: { type: string }
+    tls_verify_disabled: { type: [boolean, "null"] }
+  additionalProperties: false

@@ -1,0 +1,66 @@
+backups:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  get:
+    operationId: listClusterBackups
+    tags: [Cluster backups]
+    summary: List cluster backups
+    description: Returns documented backups. Pagination inputs are accepted, but the published response has no cursor metadata.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-backup#list-backups
+    x-idempotent: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [name]
+          default: name
+    responses:
+      "200":
+        description: Cluster backups.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-backup.yaml#/ClusterBackupList }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }
+
+backupTokens:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/ClusterId
+  post:
+    operationId: createClusterBackupToken
+    tags: [Cluster backups]
+    summary: Create a cluster backup token
+    description: Creates fresh provider credentials for direct pgBackRest access. They remain valid for 36 hours, and Crunchy Bridge does not persist the token resource or its ID. Treat the full response as secret.
+    x-docs-url: https://docs.crunchybridge.com/api/cluster-backup#create-backup-token
+    x-idempotent: false
+    x-sensitive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    responses:
+      "201":
+        description: Temporary backup credentials.
+        headers:
+          X-Request-Id: { $ref: ../components/headers/common.yaml#/XRequestId }
+          Idempotency-Key: { $ref: ../components/headers/common.yaml#/IdempotencyKey }
+          Idempotency-Replay: { $ref: ../components/headers/common.yaml#/IdempotencyReplay }
+        content:
+          application/json:
+            schema: { $ref: ../components/schemas/cluster-backup.yaml#/ClusterBackupToken }
+      "401": { $ref: ../components/responses/errors.yaml#/Unauthorized }
+      "403": { $ref: ../components/responses/errors.yaml#/Forbidden }
+      "404": { $ref: ../components/responses/errors.yaml#/NotFound }
+      "409": { $ref: ../components/responses/errors.yaml#/IdempotencyConflict }
+      "429": { $ref: ../components/responses/errors.yaml#/RateLimited }
+      default: { $ref: ../components/responses/errors.yaml#/Error }

@@ -1,0 +1,79 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listChangelogs
+    tags:
+      - Changelogs
+    summary: List changelog entries
+    description: Returns published Crunchy Bridge changes. Live requests succeed without authentication.
+    security: []
+    x-docs-url: https://docs.crunchybridge.com/api/changelog#list-changelog-entries
+    x-idempotent: true
+    parameters:
+      - name: component
+        in: query
+        required: false
+        description: Product area to include.
+        schema:
+          $ref: ../components/schemas/changelog.yaml#/ChangelogComponent
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: Field used to order changelog entries.
+        schema:
+          type: string
+          enum:
+            - id
+          default: id
+    responses:
+      "200":
+        description: A page of changelog entries.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/changelog.yaml#/ChangelogList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/identifiers.yaml#/ChangelogIdOrName
+  get:
+    operationId: getChangelog
+    tags:
+      - Changelogs
+    summary: Get a changelog entry
+    description: Returns a changelog entry by EID or unique name. Live requests succeed without authentication.
+    security: []
+    x-docs-url: https://docs.crunchybridge.com/api/changelog#get-changelog-entry
+    x-idempotent: true
+    responses:
+      "200":
+        description: The changelog entry.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/changelog.yaml#/Changelog
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

@@ -1,0 +1,46 @@
+apis:
+  crunchy-bridge@v0:
+    root: openapi/openapi.yaml
+    x-openapi-ts:
+      output: .generated/openapi.d.ts
+
+extends:
+  - recommended-strict
+
+rules:
+  info-license: off
+  no-invalid-media-type-examples: error
+  no-invalid-parameter-examples: error
+  no-invalid-schema-examples: error
+  no-unused-components: error
+  operation-operationId-unique: error
+  operation-summary: error
+  security-defined: error
+  rule/operation-id-lower-camel:
+    subject:
+      type: Operation
+      property: operationId
+    assertions:
+      defined: true
+      pattern: ^[a-z][A-Za-z0-9]*$
+  rule/operation-description:
+    subject:
+      type: Operation
+      property: description
+    assertions:
+      defined: true
+  rule/operation-docs-url:
+    subject:
+      type: Operation
+      property: x-docs-url
+    assertions:
+      defined: true
+      pattern: ^https://docs\.crunchybridge\.com/
+  rule/operation-idempotency:
+    subject:
+      type: Operation
+      property: x-idempotent
+    assertions:
+      defined: true
+      schema:
+        type: boolean

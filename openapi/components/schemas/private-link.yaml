@@ -1,0 +1,62 @@
+ClusterPrivateLink:
+  type: object
+  required:
+    - cluster_id
+    - id
+    - status
+    - team_id
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    endpoint_identifier:
+      type: string
+      description: Provider endpoint-service identifier, when available.
+    status:
+      type: string
+      enum:
+        - available
+        - creating
+        - destroying
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+ClusterPrivateLinkConnection:
+  type: object
+  required:
+    - cluster_id
+    - id
+    - name
+    - status
+    - team_id
+  properties:
+    id:
+      $ref: ./common.yaml#/EID
+    cluster_id:
+      $ref: ./common.yaml#/EID
+    name:
+      type: string
+      description: Provider endpoint identifier or name.
+    status:
+      type: string
+      enum:
+        - approved
+        - pending
+        - rejected
+        - removed
+    team_id:
+      $ref: ./common.yaml#/EID
+  additionalProperties: true
+
+ClusterPrivateLinkConnectionList:
+  type: object
+  required:
+    - connections
+  properties:
+    connections:
+      type: array
+      items:
+        $ref: '#/ClusterPrivateLinkConnection'
+  additionalProperties: true

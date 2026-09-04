@@ -1,0 +1,78 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+  get:
+    operationId: listPostgresVersions
+    tags:
+      - Postgres versions
+    summary: List Postgres versions
+    description: Returns Postgres major versions available to the caller. The default catalog is available without authentication.
+    security:
+      - bearerAuth: []
+      - {}
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-version#list-postgres-versions
+    x-idempotent: true
+    parameters:
+      - name: team_id
+        in: query
+        required: false
+        description: Team whose version availability should be used.
+        schema:
+          $ref: ../components/schemas/common.yaml#/EID
+    responses:
+      "200":
+        description: Available Postgres versions.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/postgres-version.yaml#/PostgresVersionList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/identifiers.yaml#/PostgresVersionId
+  get:
+    operationId: getPostgresVersion
+    tags:
+      - Postgres versions
+    summary: Get a Postgres version
+    description: Returns a Postgres version by EID or major version number. Default versions are available without authentication.
+    security:
+      - bearerAuth: []
+      - {}
+    x-docs-url: https://docs.crunchybridge.com/api/postgres-version#get-postgres-version
+    x-idempotent: true
+    parameters:
+      - name: team_id
+        in: query
+        required: false
+        description: Team whose version availability should be used.
+        schema:
+          $ref: ../components/schemas/common.yaml#/EID
+    responses:
+      "200":
+        description: The Postgres version.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/postgres-version.yaml#/PostgresVersion
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

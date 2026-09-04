@@ -1,0 +1,16 @@
+CursorPage:
+  type: object
+  description: Cursor metadata returned by a paginated list operation.
+  required:
+    - has_more
+    - next_cursor
+  properties:
+    has_more:
+      type: boolean
+      description: Whether another page is available.
+    next_cursor:
+      type:
+        - string
+        - "null"
+      description: Pass this value as `cursor` to request the next page.
+  additionalProperties: true

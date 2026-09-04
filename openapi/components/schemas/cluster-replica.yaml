@@ -1,0 +1,49 @@
+ClusterReplicaCreateRequest:
+  type: object
+  required: [name]
+  allOf:
+    - not:
+        required: [network_cidr4, network_id]
+        properties:
+          network_cidr4: { type: string }
+          network_id: { $ref: ./common.yaml#/EID }
+    - not:
+        required: [network_id, provider_id]
+        properties:
+          network_id: { $ref: ./common.yaml#/EID }
+          provider_id: { type: string }
+    - if:
+        required: [provider_id]
+        properties:
+          provider_id: { type: string }
+      then:
+        required: [plan_id, region_id]
+        properties:
+          plan_id: { type: string }
+          region_id: { type: string }
+  properties:
+    name: { type: string }
+    cluster_group_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    keychain_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    network_cidr4:
+      type: [string, "null"]
+      description: RFC 1918 private IPv4 CIDR with a prefix no longer than 20 bits; mutually exclusive with `network_id`.
+    network_id:
+      oneOf:
+        - $ref: ./common.yaml#/EID
+        - type: "null"
+    plan_id: { type: [string, "null"] }
+    provider_id:
+      type: [string, "null"]
+      enum: [aws, azure, gcp, null]
+    region_id: { type: [string, "null"] }
+    snowflake_entity_id:
+      type: [integer, "null"]
+      format: int64
+  additionalProperties: false

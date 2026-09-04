@@ -1,0 +1,208 @@
+collection:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/NetworkId
+  get:
+    operationId: listNetworkFirewallRules
+    tags:
+      - Firewall rules
+    summary: List network firewall rules
+    description: |
+      Returns rules for a network. The endpoint accepts cursor pagination but
+      its documented response has no cursor metadata.
+    x-docs-url: https://docs.crunchybridge.com/api/network-firewall-rule#list-firewall-rules
+    x-idempotent: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/Cursor
+      - $ref: ../components/parameters/common.yaml#/Limit200
+      - $ref: ../components/parameters/common.yaml#/Order
+      - name: order_field
+        in: query
+        required: false
+        description: |
+          Field used to order rules. The parameter table allows `id` and
+          `rule`; surrounding prose instead says `cidr`.
+        schema:
+          type: string
+          enum:
+            - id
+            - rule
+          default: id
+    responses:
+      "200":
+        description: Network firewall rules.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRuleList
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  post:
+    operationId: createNetworkFirewallRule
+    tags:
+      - Firewall rules
+    summary: Create a network firewall rule
+    description: |
+      Adds an ingress or egress CIDR rule to the network. The first-party
+      machine description omits request-body requiredness, but the documented
+      required `rule` field makes a body necessary.
+    x-docs-url: https://docs.crunchybridge.com/api/network-firewall-rule#create-firewall-rule
+    x-idempotent: false
+    x-disruptive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/firewall-rule.yaml#/FirewallRuleCreateRequest
+    responses:
+      "201":
+        description: The new firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+
+item:
+  parameters:
+    - $ref: ../components/parameters/common.yaml#/XRequestId
+    - $ref: ../components/parameters/eids.yaml#/NetworkId
+    - $ref: ../components/parameters/eids.yaml#/RuleId
+  get:
+    operationId: getNetworkFirewallRule
+    tags:
+      - Firewall rules
+    summary: Get a network firewall rule
+    description: Returns one firewall rule.
+    x-docs-url: https://docs.crunchybridge.com/api/network-firewall-rule#get-firewall-rule
+    x-idempotent: true
+    responses:
+      "200":
+        description: The firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  patch:
+    operationId: updateNetworkFirewallRule
+    tags:
+      - Firewall rules
+    summary: Update a network firewall rule
+    description: Updates the CIDR or description. The rule direction is immutable.
+    x-docs-url: https://docs.crunchybridge.com/api/network-firewall-rule#update-firewall-rule
+    x-idempotent: false
+    x-disruptive: true
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/IdempotencyKey
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/firewall-rule.yaml#/FirewallRuleUpdateRequest
+    responses:
+      "200":
+        description: The updated firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+          Idempotency-Key:
+            $ref: ../components/headers/common.yaml#/IdempotencyKey
+          Idempotency-Replay:
+            $ref: ../components/headers/common.yaml#/IdempotencyReplay
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "400":
+        $ref: ../components/responses/errors.yaml#/BadRequest
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "409":
+        $ref: ../components/responses/errors.yaml#/IdempotencyConflict
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error
+  delete:
+    operationId: destroyNetworkFirewallRule
+    tags:
+      - Firewall rules
+    summary: Delete a network firewall rule
+    description: Deletes a rule and may change application or public network access.
+    x-docs-url: https://docs.crunchybridge.com/api/network-firewall-rule#destroy-firewall-rule
+    x-disruptive: true
+    x-idempotent: true
+    responses:
+      "200":
+        description: The deleted firewall rule.
+        headers:
+          X-Request-Id:
+            $ref: ../components/headers/common.yaml#/XRequestId
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/firewall-rule.yaml#/FirewallRule
+      "401":
+        $ref: ../components/responses/errors.yaml#/Unauthorized
+      "403":
+        $ref: ../components/responses/errors.yaml#/Forbidden
+      "404":
+        $ref: ../components/responses/errors.yaml#/NotFound
+      "410":
+        $ref: ../components/responses/errors.yaml#/Gone
+      "429":
+        $ref: ../components/responses/errors.yaml#/RateLimited
+      default:
+        $ref: ../components/responses/errors.yaml#/Error

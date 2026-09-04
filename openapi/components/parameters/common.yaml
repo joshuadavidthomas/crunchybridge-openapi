@@ -1,0 +1,66 @@
+XRequestId:
+  name: X-Request-Id
+  in: header
+  required: false
+  description: |
+    A client-generated UUID used to correlate the request with logs, events,
+    and support requests. The API generates one when this header is omitted.
+  schema:
+    type: string
+    format: uuid
+
+IdempotencyKey:
+  name: Idempotency-Key
+  in: header
+  required: false
+  description: |
+    A client-generated UUID that makes a POST or PATCH request safe to retry
+    for one hour. A retry with the same method, path, and body replays the stored
+    response. Reusing a key with another request or while the first request is
+    still running returns 409. The API stores unsuccessful responses except
+    transient 429, 500, and 503 responses.
+  schema:
+    type: string
+    format: uuid
+
+Cursor:
+  name: cursor
+  in: query
+  required: false
+  description: The `next_cursor` value returned by the preceding page.
+  schema:
+    type: string
+
+Limit100:
+  name: limit
+  in: query
+  required: false
+  description: Maximum number of resources to return.
+  schema:
+    type: integer
+    minimum: 1
+    maximum: 100
+    default: 100
+
+Limit200:
+  name: limit
+  in: query
+  required: false
+  description: Maximum number of resources to return.
+  schema:
+    type: integer
+    minimum: 1
+    maximum: 200
+    default: 100
+
+Order:
+  name: order
+  in: query
+  required: false
+  description: Direction in which to order the resources.
+  schema:
+    type: string
+    enum:
+      - asc
+      - desc
+    default: asc
