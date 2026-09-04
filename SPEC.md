@@ -196,7 +196,7 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 - [x] Add a pinned npm lockfile.
 - [x] Add GitHub Actions configuration for `npm test`.
 - [x] Keep `dist/` empty with `dist/.gitignore` rather than committing a generated bundle.
-- [ ] Observe the GitHub Actions workflow passing in the remote repository.
+- [x] Observe the GitHub Actions workflow passing in the remote repository ([initial run](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33927904977)).
 - [x] Choose and add a repository/spec license (MIT).
 - [x] Add the shared `X-Request-Id` request parameter.
 - [x] Add the shared `Idempotency-Key` request parameter.
@@ -660,7 +660,7 @@ Allowed statuses are `not started`, `in progress`, `blocked`, and `exited`.
 
 ### Phase 0: foundation
 
-Status: in progress; implementation and MIT licensing are complete, while the remote CI gate remains open.
+Status: exited; shared contract tooling, MIT licensing, and the first remote GitHub Actions run pass.
 
 Work:
 
@@ -1009,6 +1009,9 @@ Version `1.0.0` requires all of the following:
 
 ### Publication setup
 
+- Pushed the initial contract to `main`; the [first remote OpenAPI workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33927904977) passed. Updated the SHA-pinned checkout/setup-node actions after that run reported their old Node runtime as deprecated.
+- The bundle checker now requires matching package/OpenAPI versions, a matching changelog section, and MIT license metadata.
+- GitGuardian is owner-managed. No GitGuardian result appeared in the initial commit's GitHub check/status API; its scan result remains unverified.
 - The owner approved MIT, Executor as the first consumer, and committing and publishing to the new public GitHub repository.
 - Added `LICENSE`, OpenAPI and package license metadata, a root `CHANGELOG.md`, and a release workflow that builds and uploads the YAML when a GitHub release is published. The layout follows neighboring projects' changelog and release conventions.
 - Retained the owner's GitGuardian integration; no additional scanner is configured.
