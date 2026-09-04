@@ -835,7 +835,7 @@ Exit gate:
 
 ### Phase 9: release and drift control
 
-Status: in progress; the `v0.1.0` preview and its standalone bundle are published. Breaking-change reports, scheduled drift checks, and the remaining stable-release checks are still open.
+Status: in progress; previews through `v0.1.1` and their standalone bundles are published. Breaking-change reports, scheduled drift checks, and the remaining stable-release checks are still open.
 
 Work:
 
@@ -1012,6 +1012,8 @@ Version `1.0.0` requires all of the following:
 
 ### Authenticated Executor checks
 
+- Published the correction as [v0.1.1](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/tag/v0.1.1). The [release workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33931259809) passed all checks, including 10 fixture/regression tests, and uploaded the bundle. Its public download matches the local build: SHA-256 `240c79d24fa03b0d91216419bb5f0079fd8160c0692a0c2fa71bd74e4a3ced5d`.
+- Executor's imported `v0.1.0` copy needs a refresh to the new versioned URL to receive the billing-address correction.
 - Confirmed that the imported `v0.1.0` catalog contains all 84 operations with unique names and readable input/output descriptors. Inspected representative create, query, role, list, and certificate shapes without invoking writes.
 - Used only the owner-approved work-account test team. Authenticated GETs for Team, Cluster list, Network list, Team Member list/get, Event list/get, and Team Certificate returned `200`. The team has no clusters or networks. No mutation ran and no resource was created.
 - Sanitized seven JSON responses inside Executor before output. Added fixtures and an offline Ajv test runner that selects response schemas by operation, status, and media type. Certificate evidence records string/media handling without storing its bytes.
