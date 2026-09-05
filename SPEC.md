@@ -823,7 +823,7 @@ Exit gate:
 
 ### Phase 9: release and drift control
 
-Status: in progress; previews through `v0.1.1` are published. Release comparison and weekly documentation drift checks pass locally and in CI. Stable-release live-contract checks remain open.
+Status: in progress; previews through `v0.1.1` are published. Release comparison and weekly documentation drift checks are implemented and tested in CI. Stable-release live-contract checks remain open.
 
 Work:
 
@@ -989,7 +989,7 @@ Version `1.0.0` requires all of the following:
 - [ ] Untested writes and destructive operations are listed with their safety reason.
 - [x] A generated TypeScript client and validator set compile without hand edits.
 - [x] Versioned releases publish immutable bundles.
-- [x] Breaking-change and docs-drift checks pass in CI; weekly documentation checks are scheduled.
+- [x] CI runs breaking-change and docs-drift checks and schedules weekly documentation checks.
 - [x] README usage and contributor instructions match the released workflow.
 - [x] The repository has a license.
 
