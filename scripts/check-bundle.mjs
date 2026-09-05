@@ -5,7 +5,7 @@ import { parse } from "yaml";
 
 const bundlePath = new URL("../dist/openapi.yaml", import.meta.url);
 const specPath = new URL("../SPEC.md", import.meta.url);
-const evidencePath = new URL("../evidence/unauthenticated-observations.yaml", import.meta.url);
+const evidencePath = new URL("../tests/contract/unauthenticated-observations.yaml", import.meta.url);
 const [bundleSource, specSource, evidenceSource, packageSource, changelogSource] = await Promise.all([
   readFile(bundlePath, "utf8"),
   readFile(specPath, "utf8"),

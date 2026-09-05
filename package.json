@@ -18,7 +18,11 @@
     "generate:hey-api": "openapi-ts --input ./dist/openapi.yaml --output .generated/hey-api --plugins @hey-api/typescript zod",
     "check:hey-api": "npm run generate:hey-api && tsc --strict --noEmit --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler .generated/hey-api/types.gen.ts .generated/hey-api/zod.gen.ts tests/generated-hey-api/smoke.ts && tsx tests/generated-hey-api/smoke.ts",
     "check:fixtures": "node --test tests/contract/fixtures.test.mjs",
-    "check": "npm run lint && npm run check:bundle-fresh && npm run lint:bundle && npm run check:bundle && npm run check:fixtures && npm run check:generated && npm run check:hey-api",
+    "check:maintenance": "node --test tests/maintenance.test.mjs",
+    "check:breaking": "node scripts/compare-release.mjs",
+    "check:docs": "node scripts/docs-drift.mjs",
+    "update:docs-baseline": "node scripts/docs-drift.mjs --update",
+    "check": "npm run lint && npm run check:bundle-fresh && npm run lint:bundle && npm run check:bundle && npm run check:fixtures && npm run check:maintenance && npm run check:generated && npm run check:hey-api",
     "test": "npm run check"
   },
   "overrides": {
@@ -33,6 +37,7 @@
     "ajv-formats": "3.0.1",
     "openapi-fetch": "^0.17.0",
     "openapi-typescript": "^7.13.0",
+    "parse5": "8.0.1",
     "tsx": "4.23.13",
     "typescript": "^5.9.3",
     "yaml": "^2.9.0",

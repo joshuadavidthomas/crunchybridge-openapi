@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Status | Active |
-| Last updated | 2026-09-04 |
+| Last updated | 2026-09-05 |
 | Contract format | OpenAPI 3.1 YAML |
 | Public API base URL | `https://api.crunchybridge.com` |
 | Documented operations | 84 |
@@ -19,7 +19,7 @@ This file defines the project and tracks its progress. Update it in the same cha
 Checkboxes record three kinds of work:
 
 - For authored files and operations, `[x]` means the source contains the change, `npm test` passes, and the work meets the acceptance rules below.
-- For research or live verification, `[x]` means dated evidence appears in the progress log or a cited, sanitized fixture.
+- For research or live verification, `[x]` means a source citation, sanitized test fixture, or completed check supports the claim.
 - For decisions, `[x]` means the chosen outcome appears under Decisions and the matching item has left Open decisions.
 - `[ ]` always means work remains. A partial draft stays unchecked.
 
@@ -164,16 +164,12 @@ The contract keeps these flat extensions. HTTP method supplies the baseline `rea
 
 Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on every operation. The recommended-strict ruleset and explicit example rules turn lint warnings into CI failures.
 
-### Publication and initial testing
+### Publication
 
-- The owner selected MIT for the repository and contract.
-- Publish previews through GitHub releases in `joshuadavidthomas/crunchybridge-openapi`, with notes from the root Keep a Changelog-style `CHANGELOG.md`.
-- Commit the generated `dist/openapi.yaml` so consumers can re-fetch a stable raw `main` URL. Attach the same bundle to each versioned release for callers who want a pinned snapshot.
-- Use `https://raw.githubusercontent.com/joshuadavidthomas/crunchybridge-openapi/main/dist/openapi.yaml` for Executor integrations that follow updates. A versioned release URL cannot pick up later versions.
-- Use the owner's existing GitGuardian integration rather than adding a second secret scanner. Observe its remote result before claiming a scan passed.
-- Executor is the first agent consumer. The owner imported `v0.1.0` and configured authentication; this session can now call the integration. All 84 operations have catalog entries and readable descriptors.
-- Live verification is limited to the exact owner-approved test team on a work account. Existing resources remain read-only. The team currently has no clusters or networks; do not substitute resources from another team.
-- Treat $2 total as the ceiling for this initial sanity-check session. The owner mentioned $5 as an expectation, not an additional approved budget. No billed or disruptive operation may run before exact disposable resource IDs, estimated cost, and cleanup steps are recorded. This limit is a test policy, not a provider-enforced billing cap.
+- License the repository and contract under MIT.
+- Publish versioned YAML assets through GitHub releases, with notes from `CHANGELOG.md`.
+- Commit `dist/openapi.yaml` for consumers that follow the raw `main` URL. Keep source and bundle in the same change.
+- Keep exploratory reports, approval transcripts, resource inventories, and per-session test plans out of the repository. Commit only sanitized fixtures used by tests and data needed by automated checks.
 
 ### Generated files
 
@@ -699,7 +695,7 @@ Exit gate:
 
 ### Phase 2: low-risk reference and identity resources
 
-Status: in progress; all operations are authored. Authenticated Team, active Team Member, and Certificate reads now have evidence. Account-wide Team listing is outside the approved work-account scope; invitation and SSO-enabled variants remain unobserved.
+Status: in progress; all operations are authored. Team and active Team Member fixtures pass. Team lists, invitations, and SSO-enabled variants need more coverage.
 
 Resources: Certificates, Changelogs, Providers, Postgres versions, Teams, and Team members.
 
@@ -717,7 +713,7 @@ Exit gate:
 
 ### Phase 3: network resources
 
-Status: in progress; all 22 operations are authored. An authenticated empty NetworkList fixture passes, but the approved team has no networks for item checks. Other network response and consumer approval-policy checks remain open.
+Status: in progress; all 22 operations are authored. An empty NetworkList fixture passes. Populated network responses and approval-policy enforcement need verification.
 
 Resources: Networks, network firewall rules, deprecated cluster firewall rules, network peerings, private links, and private-link connections.
 
@@ -737,7 +733,7 @@ Exit gate:
 
 ### Phase 4: cluster core
 
-Status: in progress; all 16 operations are authored. An authenticated empty ClusterList fixture passes and Executor preserves representative request shapes. No clusters exist in the approved team for get/status fixtures; approval enforcement remains unverified.
+Status: in progress; all 16 operations are authored. An empty ClusterList fixture passes and Executor preserves representative request shapes. Cluster get/status fixtures and approval enforcement need verification.
 
 Resources: Cluster list/create/get/update/delete/status plus cluster actions.
 
@@ -836,7 +832,7 @@ Exit gate:
 
 ### Phase 9: release and drift control
 
-Status: in progress; previews through `v0.1.1` and their standalone bundles are published. Breaking-change reports, scheduled drift checks, and the remaining stable-release checks are still open.
+Status: in progress; previews through `v0.1.1` are published. Release comparison and weekly documentation drift checks are implemented and pass locally; remote workflow verification is pending. Stable-release consumer and live-contract checks remain open.
 
 Work:
 
@@ -871,6 +867,7 @@ npm run check:bundle-fresh
 npm run lint:bundle
 npm run check:bundle
 npm run check:fixtures
+npm run check:maintenance
 npm run check:generated
 npm run check:hey-api
 ```
@@ -892,7 +889,8 @@ npm run check:hey-api
 - [x] Require every mutation to carry an agent-risk flag or appear in the reviewed low-risk allowlist, and pin critical operations to their required flag sets.
 - [x] Generate OpenAPI TypeScript declarations and compile the `openapi-fetch` smoke client.
 - [x] Generate and compile Hey API's TypeScript and Zod outputs; use Ajv 2020 for semantic keywords the Zod generator cannot preserve.
-- [ ] Report breaking changes against the last released bundle.
+- [x] Report breaking changes against the newest published bundle with pinned oasdiff, plus explicit agent-risk and idempotency flag comparisons. Historical `v0.1.0` comparison correctly reports the billing-address correction.
+- [x] Check all 28 source pages, the API resource index, and the complete public changelog against stored hashes. Report resource inventory changes and schedule weekly checks without modifying schemas or baselines.
 - [ ] Run secret scanning on the repository and fixtures.
 - [x] Run offline contract tests against sanitized fixtures (seven operations; empty collections and synthetic scalars have explicit coverage limits).
 - [ ] Run authenticated read-only tests only in an explicitly configured environment.
@@ -1005,102 +1003,7 @@ Version `1.0.0` requires all of the following:
 - [x] The chosen agent integration performs an authenticated read-only call with host-side secrets (Executor; eight distinct scoped read operations).
 - [ ] Approval policy blocks unattended destructive operations.
 - [ ] A tagged release publishes an immutable bundle.
-- [ ] Breaking-change and docs-drift checks run in CI or on a schedule.
+- [ ] Observe the new breaking-change and docs-drift workflows passing remotely; local checks and the weekly schedule are configured.
 - [ ] README usage and contributor instructions match the released workflow.
 - [x] The repository has a license.
 
-## Progress log
-
-### Re-fetchable bundle
-
-- The owner corrected the publication workflow: Executor must be able to re-fetch a moving source URL without recreating its integration for each release.
-- Removed `dist/.gitignore` and committed `dist/openapi.yaml`. The raw `main` URL follows source updates; release assets retain their role as versioned snapshots.
-- Added `check:bundle-fresh` to the normal test chain. It builds to a temporary directory, compares bytes with the committed bundle, and fails with regeneration instructions instead of overwriting stale output.
-- Updated README usage, contributor steps, and generated-file policy to require source and bundle in the same commit. This supersedes the earlier decision to exclude the bundle.
-- Verified the freshness check rejects a temporary source change without modifying the committed bundle; restored the source and ran the full passing `npm test` chain.
-
-### Authenticated Executor checks
-
-- Published the correction as [v0.1.1](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/tag/v0.1.1). The [release workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33931259809) passed all checks, including 10 fixture/regression tests, and uploaded the bundle. Its public download matches the local build: SHA-256 `240c79d24fa03b0d91216419bb5f0079fd8160c0692a0c2fa71bd74e4a3ced5d`.
-- Executor's imported `v0.1.0` copy needs a refresh to the new versioned URL to receive the billing-address correction.
-- Confirmed that the imported `v0.1.0` catalog contains all 84 operations with unique names and readable input/output descriptors. Inspected representative create, query, role, list, and certificate shapes without invoking writes.
-- Used only the owner-approved work-account test team. Authenticated GETs for Team, Cluster list, Network list, Team Member list/get, Event list/get, and Team Certificate returned `200`. The team has no clusters or networks. No mutation ran and no resource was created.
-- Sanitized seven JSON responses inside Executor before output. Added fixtures and an offline Ajv test runner that selects response schemas by operation, status, and media type. Certificate evidence records string/media handling without storing its bytes.
-- Reproduced the `getTeam` fixture failure on `billing_address: null` against `v0.1.0`, then corrected only the Team response schema. Added valid-object and invalid-object cases plus TypeScript and Zod regressions. Null update input remains unsupported pending evidence.
-- Added `evidence/executor-smoke.yaml` with import checks, read results, and limits. Approval enforcement is still untested; no destructive call was attempted as a policy probe.
-- Ignored the owner's local `.mcp.json` without reading or changing its contents.
-
-### Publication setup
-
-- Published the [v0.1.0 preview](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/tag/v0.1.0) from `121aa2ca1937050cc8187e22a9d4701d584cb1e8`, using the `0.1.0` changelog section as release notes.
-- The [release workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33928088616) passed, including version verification, all contract checks, and upload of `openapi.yaml`.
-- Downloaded the public [versioned bundle](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/download/v0.1.0/openapi.yaml) without authentication and confirmed it matches the local build: SHA-256 `d946bbe923d666075f974d484a59ecbf06fac064146cc025f88579bc175ffe6c` (206,136 bytes).
-- Pushed the initial contract to `main`; the [first remote OpenAPI workflow](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33927904977) passed. Updated the SHA-pinned checkout/setup-node actions after that run reported their old Node runtime as deprecated.
-- The bundle checker now requires matching package/OpenAPI versions, a matching changelog section, and MIT license metadata.
-- GitGuardian is owner-managed. No GitGuardian result appeared in the initial commit's GitHub check/status API; its scan result remains unverified.
-- The owner approved MIT, Executor as the first consumer, and committing and publishing to the new public GitHub repository.
-- Added `LICENSE`, OpenAPI and package license metadata, a root `CHANGELOG.md`, and a release workflow that builds and uploads the YAML when a GitHub release is published. The layout follows neighboring projects' changelog and release conventions.
-- Retained the owner's GitGuardian integration; no additional scanner is configured.
-- Ignored `.env` files to keep local credentials out of version control.
-- Recorded a conservative $2 initial test ceiling and deferred writes until exact resources and cleanup steps are agreed. No authenticated credentials are available and no billed resources have been created.
-
-### 2026-09-04
-
-- Created the OpenAPI 3.1 root, modular layout, Redocly configuration, npm scripts, lockfile, and CI workflow.
-- Added the Account resource with `GET /account` and `DELETE /account`.
-- Added provisional EID and error schemas plus request ID and rate-limit response headers.
-- Confirmed the live unauthenticated `401` body shape without using credentials.
-- Counted 84 operations across the 24 public API resource pages.
-- Created this specification and coverage tracker.
-- Added shared idempotency headers, pagination components, EID path parameters, strict example checks, operation metadata rules, and a standalone-bundle reference check.
-- Added Access Token with create and destroy operations. Two safe requests with missing or fake body credentials reached client-secret validation without a bearer header, confirming `security: []` for creation. Both returned the documented error fields and no credential was created.
-- Kept the conflicting access-token lifetime claims visible and unenforced pending a safe authenticated test.
-- Added Event list/get schemas and operations, including filters, endpoint-specific limits, cursor paging, retention, and polling instructions. The unresolved `delay` wire type remains an integer-or-duration union.
-- Added generated OpenAPI TypeScript declarations and an `openapi-fetch` compile check covering all six authored operations.
-- Phase 1 exited with 6 of 84 documented operations authored and no authenticated contract tests run.
-- Added Certificate, Changelog, Provider, Postgres Version, Team, and Team Member schemas and all 16 operations from those pages.
-- Confirmed unauthenticated `200` responses for both Changelog operations, Provider list, and both Postgres Version operations. Changelogs use `security: []`; Provider and Postgres Version allow either bearer or anonymous access because authenticated `team_id` requests can change availability. Team Certificate still returned `401` without credentials.
-- Added typed provider pricing/catalog shapes, dual-form changelog and Postgres version identifiers, PEM certificate output, Team access/billing settings, and invited-member nullable shapes.
-- Extended the type-only generated client check across all 22 authored operations and asserted that the certificate response remains a PEM string. The check contains no callable API operations.
-- Phase 2 remains in progress until authenticated Team, Team Member, and Certificate evidence exists and the fixture/redaction format is chosen.
-- Added Network, Network Firewall Rule, deprecated Cluster Firewall Rule, Network Peering, Private Link, and Private Link Connection schemas and all 22 operations from those pages.
-- Corrected two earlier inventory assumptions from first-party Apiary evidence: deprecated cluster firewall routes use singular `/firewall`, and private-link connections live under `/private-link/connections` with direct `/approve` and `/reject` action suffixes.
-- Classified firewall deletion as disruptive rather than destructive because callers can recreate the rule; all network-access mutations carry disruption metadata.
-- Tightened the EID pattern to enforce the canonical final Base32 character.
-- Kept firewall and peering list responses free of invented cursor fields even though their requests accept pagination controls.
-- Extended the type-only generated client check across all 44 authored operations.
-- Phase 3 remains in progress until authenticated network responses validate and an agent consumer proves the approval policy.
-- Added the recursive Cluster response, distinct status-upgrade and operation shapes, closed create/update/fork/action requests, and all 16 Cluster operations.
-- Preserved documented create/fork network-placement rules in operation descriptions without encoding unsupported JSON Schema exclusions.
-- Classified cluster creation, forking, HA enablement, and resume as cost-bearing; cluster deletion as destructive; connectivity and lifecycle changes by their documented effects.
-- Represented unresolved update, restart, and Tailscale-connect body presence permissively as optional; required create and fork bodies because their schemas contain required fields.
-- Extended exhaustive generated operation coverage and the bundle-to-`SPEC.md` count check to 60 operations.
-- Phase 4 remains in progress until authenticated Cluster fixtures validate and an agent consumer proves request-shape and approval behavior.
-- Added Cluster Backup, Cluster Logger, Cluster Replica, Cluster Upgrade, Configuration Parameter, Metric View, Postgres Role, and Query schemas and all 24 remaining operations.
-- Reused the canonical Cluster and ClusterOperation schemas across replicas, upgrades, status, and actions instead of copying response models.
-- Preserved unusual success contracts: logger PUT returns `200`, upgrade PUT returns `201`, and role upsert documents only `201`.
-- Split full and redacted Postgres role responses so list and delete clients cannot assume credentials may appear.
-- Kept backup, logger, role, firewall, and peering list envelopes free of invented cursor metadata despite accepted pagination inputs.
-- Typed metric series as interval objects and query results as row arrays whose cells may hold any JSON value, correcting malformed rendered and Apiary shapes with first-party examples.
-- Excluded every prose-only Query lifecycle endpoint and confirmed that no public Contact resource contributes to the 84-operation inventory.
-- Extended the exhaustive generated operation map and bundle-to-`SPEC.md` count check to all 84 documented operations.
-- Phases 5 and 6 remain in progress until authenticated fixtures, redaction checks, and agent-runtime policy checks exist.
-- Added discriminated backup-token variants, 36-hour credential guidance, logger default behavior, exact replica placement rules, and detach retry bounds after focused review.
-- Added bundled-schema checks for Query mode conflicts, Tailscale credential exclusivity, replica placement/provider constraints, upgrade schedule exclusivity, and backup-token/provider coherence.
-- Configured generated TypeScript to preserve optional properties that have server defaults, then added assertions for request requiredness, nullability, redacted credentials, mixed identifiers, repeatable filters, and unusual success statuses.
-- Added representative Metric View and Query examples and schema validation for numeric query result cells.
-- Confirmed `GET /configuration-parameters` returns the expected authenticated `401` without credentials; no public-access override is needed.
-- Compared Hey API, Orval, Kubb, and focused Zod generators; selected `@hey-api/openapi-ts` for the interoperability fixture and retained Ajv 2020 for exact `not`, `oneOf`, and `const` semantics.
-- Added reproducible Hey API TypeScript/Zod generation, compilation, and smoke imports for PEM output, EIDs, metric intervals, and Query requests.
-- Overrode Hey API's nested `js-yaml` to the patched major release; generation passes and `npm audit` reports zero vulnerabilities.
-- Phase 6 exited after both operations passed OpenAPI TypeScript, Hey API TypeScript/Zod, example validation, and bundled semantic checks.
-- Phase 8 remains in progress until an agent runtime imports all operations and proves host-side auth and approval behavior.
-- Added enforceable Cluster create/fork placement constraints and Ajv negative cases after the final contract audit.
-- Marked Account and Event operations sensitive because they expose personal data, IP addresses, and historical resource snapshots.
-- Added exhaustive success-status, anonymous-security, and mutation-risk policy checks across all 84 operations; only `pingCluster`, `updateCluster`, and `updateNetwork` are reviewed low-risk mutations without hazard flags.
-- Recorded five anonymous `200` observations and the Configuration Parameter `401` in `evidence/unauthenticated-observations.yaml`; the bundle checker verifies those records against the contract.
-- Added strict compile and runtime execution for generated Hey API Zod schemas, including positive and negative EID, Metric View, Query, and backup-token cases.
-- Declared Node 22.18 as the minimum supported runtime and pinned GitHub Actions to full commit SHAs.
-- Added positive and negative Ajv cases for Cluster create/fork placement so constraint checks cannot pass by rejecting every request.
-- Made evidence checks non-vacuous by requiring the six dated anonymous observations and validating each record's shape, status, method, and auth mode.
-- `npm audit` reports zero known vulnerabilities.

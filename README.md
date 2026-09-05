@@ -20,7 +20,7 @@ In Executor, use **Re-fetch the spec on save** to load updates from that URL. An
 
 For a pinned version, use the [v0.1.1 release bundle](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/download/v0.1.1/openapi.yaml). Releases preserve versioned snapshots; the raw `main` URL follows development. Both contain every schema. The modular source entry point requires the rest of `openapi/`.
 
-This is a preview. Executor imports all 84 operations, and eight authenticated read operations have succeeded on an approved test team. Seven sanitized JSON response fixtures now validate offline; empty cluster and network lists do not verify resource item schemas. See [the smoke report](evidence/executor-smoke.yaml) for limits. Start with read-only operations. Configure bearer credentials in the consumer's secret storage, not in the YAML or prompts. Risk extensions do not enforce approvals themselves; keep writes disabled until the consumer's policy is tested. The spec points to the real Crunchy Bridge API.
+This is a preview. Executor imports all 84 operations, and eight authenticated read operations have succeeded on an approved test team. Seven sanitized JSON response fixtures now validate offline; empty cluster and network lists do not verify resource item schemas. See [fixture coverage](tests/contract/README.md) for limits. Start with read-only operations. Configure bearer credentials in the consumer's secret storage, not in the YAML or prompts. Risk extensions do not enforce approvals themselves; keep writes disabled until the consumer's policy is tested. The spec points to the real Crunchy Bridge API.
 
 [CHANGELOG.md](CHANGELOG.md) records release changes.
 
@@ -31,7 +31,7 @@ This is a preview. Executor imports all 84 operations, and eight authenticated r
 - `openapi/components/schemas/` holds resource and shared schemas.
 - `openapi/components/headers/` and `openapi/components/responses/` hold shared HTTP behavior.
 - `dist/openapi.yaml` is the committed, generated single-file bundle. CI verifies it matches the modular source.
-- `evidence/` stores compact sanitized records for live observations that support contract claims.
+- `tests/contract/` holds sanitized response fixtures and their validation tests.
 
 Each operation links back to its source page with `x-docs-url`. Destructive operations use `x-destructive: true`; operations that are safe to retry use `x-idempotent: true`. These extensions let agent tooling apply approval and retry policy without guessing from operation names. Hey API supplies a second TypeScript/Zod interoperability check, while Ajv validates JSON Schema rules that code generators cannot preserve.
 
@@ -63,11 +63,16 @@ npm run check:bundle-fresh
 npm run lint:bundle
 npm run check:bundle
 npm run check:fixtures
+npm run check:maintenance
 npm run check:generated
 npm run check:hey-api
 ```
 
 [Response fixture checks](tests/contract/README.md) describes the offline tests and the procedure for capturing sanitized evidence. No live requests run in `npm test`.
+
+## Maintenance
+
+CI compares the contract with the newest release. A weekly job checks upstream docs for changes. See [maintenance commands](docs/maintenance.md) for local runs, reports, and baseline updates. These network checks are separate from `npm test`.
 
 ## Contribute and release
 

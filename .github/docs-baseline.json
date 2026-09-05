@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "observed_on": "2026-09-05",
+  "sources": [
+    {
+      "url": "https://docs.crunchybridge.com/api",
+      "sha256": "4e9957dc1b2594bd9680d6c9ab8d367d9d537406bbabab9204f7d03408b7e0f3"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api-concepts/eid",
+      "sha256": "bca56505f64666d925999044ddf013b34d53d9d1e2a4e675fe58b7832753913c"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api-concepts/event-polling",
+      "sha256": "45c55de17610bb4aee57c35c91516554b75cdf15892c65ca27d85d43b40834cb"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api-concepts/getting-started",
+      "sha256": "323e1bedd252f7c3c99362956d1ce1927f5c60019e08b36d5f7daf1a60b63355"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api-concepts/idempotency",
+      "sha256": "eb1bbb26542b8fda41237e7dc3cd0d8f9b47880dc03c71c6a46049e1a7af5e05"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/access-token",
+      "sha256": "f3288dc4300a652e1f1253965da8042f72c0f637e7f977af095c962b0b916f65"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/account",
+      "sha256": "f6811e9d97225f968c655ccf8b12f08521783f0a45ef022a83647b9d529a6f09"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/certificate",
+      "sha256": "0de241c2ca01eb85853402c4b2a2db358078e82997956e7b99b9a39797c3ed2e"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/changelog",
+      "sha256": "3b8512c6a4032ca9d9290fb2e6240ee1a3ee7b3b8e5fe57f987631b7a31f0e2b"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/cluster",
+      "sha256": "8867a129b1b347083f5b28f72a066674d10997c6198c582976c87a7b819aa4b7"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/cluster-backup",
+      "sha256": "50a6b77f56d38302ad0f95b8b28044536e7e08ea43e5f4220be7c0c5fbe0b71b"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/cluster-firewall-rule",
+      "sha256": "f47de4c50abf078515280560c57b55be90d18c7b660dba1d31bf42065f3d74ae"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/cluster-logger",
+      "sha256": "4baa7438d4c3ea487326fdd68a1fc239ad668f086de82ed9f5b0021a6ad0b54c"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/cluster-replica",
+      "sha256": "2edcd705fea30a7307a6f9b0c99c7ad1096473053f3a8b71653ce2acf8afe4ff"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/cluster-upgrade",
+      "sha256": "2b01ffa4198e3333508fcd8e10840aa4a04c817eb6aab69be6a799197a2d16e4"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/configuration-parameter",
+      "sha256": "a8525b00a0c0757ccadc152dda49b4d1708105422cc43886229d3ebbb877cf92"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/event",
+      "sha256": "d83303fac14ff4056fd7fa802da9056e9887f0b0e17cd6ad9f853f8b94981db3"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/metric-view",
+      "sha256": "bf446a4dcdf3d5d67ae9c48bd17c101f38e1da0661868091ac27310a07bff664"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/network",
+      "sha256": "6919c82b9806ca98bf19398d6cb8c8260f636b1b5ba08cb01c69bdecbcd27ed6"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/network-firewall-rule",
+      "sha256": "cad74d7adf106afa11182a598a0a3c9a85d7c3e0583dc9ab15d8d9161e7d0c46"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/network-peering",
+      "sha256": "ea494249691ff500441ec6f79c5109d1cd69f90af7797796df1d4cae677db09e"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/postgres-role",
+      "sha256": "05c49767e9d16e4dc03cb27bd1125183396dac4f352b97804acc674b820ff690"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/postgres-version",
+      "sha256": "0e68e8fd2c29f76dbe5bbd93806de8d9923f7a6eab674f0843819bb6141ed74c"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/private-link",
+      "sha256": "15be444bdaaba7a7e745737b3abe74aea704d6cfa3e59f723e1eddbb906cdb96"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/private-link-connection",
+      "sha256": "8a4a89ef2eb157805e8ac46bd2678336599e195836f8997c7f5e9415a0cce015"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/provider",
+      "sha256": "7a0cf5225bc0934e90b844a7db48fe45688332952764b0947064b3ca8e7e6c99"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/query",
+      "sha256": "cae8f1590a6069cd6e800d0facc66a45a4bc06f6ab6b92e103fdab23a9f794fd"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/team",
+      "sha256": "005addb9b2d78aab3374f063e87a70a32ddd64770568ad685d47d06d612abf76"
+    },
+    {
+      "url": "https://docs.crunchybridge.com/api/team-member",
+      "sha256": "c2f9526a41c2f8289a4541f872c69794b5da5d219498e3766eb44b2c474d6921"
+    },
+    {
+      "url": "https://api.crunchybridge.com/changelogs",
+      "sha256": "bd14cf4bec330681fbd4082aba2ceb2da24d3045dfa33652cede67ec92479780"
+    }
+  ]
+}

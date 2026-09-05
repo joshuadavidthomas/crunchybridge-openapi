@@ -18,6 +18,11 @@ and this project attempts to adhere to [Semantic Versioning](https://semver.org/
 
 ## [Unreleased]
 
+### Added
+
+- CI reports for breaking contract changes and agent-risk metadata changes against the newest release.
+- Weekly checks for upstream documentation changes, including newly listed API resource pages.
+
 ### Changed
 
 - Commit `dist/openapi.yaml` so consumers can follow a stable raw `main` URL and re-fetch updates. Release assets remain versioned snapshots.
