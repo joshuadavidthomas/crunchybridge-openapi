@@ -1,0 +1,108 @@
+https://docs.crunchybridge.com/api/access-token:
+  - [ POST, /access-tokens, 200 ]
+  - [ DELETE, "/access-tokens/{access_token_id}", 200 ]
+https://docs.crunchybridge.com/api/account:
+  - [ GET, /account, 200 ]
+  - [ DELETE, /account, 200 ]
+https://docs.crunchybridge.com/api/certificate:
+  - [ GET, "/teams/{team_id}.pem", 200 ]
+https://docs.crunchybridge.com/api/changelog:
+  - [ GET, /changelogs, 200 ]
+  - [ GET, "/changelogs/{changelog_id_or_name}", 200 ]
+https://docs.crunchybridge.com/api/cluster:
+  - [ GET, /clusters, 200 ]
+  - [ POST, /clusters, 201 ]
+  - [ GET, "/clusters/{cluster_id}", 200 ]
+  - [ PATCH, "/clusters/{cluster_id}", 200 ]
+  - [ DELETE, "/clusters/{cluster_id}", 200 ]
+  - [ GET, "/clusters/{cluster_id}/status", 200 ]
+  - [ POST, "/clusters/{cluster_id}/forks", 201 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/disable-ha", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/enable-ha", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/ping", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/restart", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/resume", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/start-backup", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/suspend", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/tailscale-connect", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/tailscale-disconnect", 200 ]
+https://docs.crunchybridge.com/api/cluster-backup:
+  - [ GET, "/clusters/{cluster_id}/backups", 200 ]
+  - [ POST, "/clusters/{cluster_id}/backup-tokens", 201 ]
+https://docs.crunchybridge.com/api/cluster-firewall-rule:
+  - [ GET, "/clusters/{cluster_id}/firewall", 200 ]
+  - [ POST, "/clusters/{cluster_id}/firewall", 201 ]
+  - [ PUT, "/clusters/{cluster_id}/firewall/{rule_id}", 200 ]
+  - [ DELETE, "/clusters/{cluster_id}/firewall/{rule_id}", 200 ]
+https://docs.crunchybridge.com/api/cluster-logger:
+  - [ GET, "/clusters/{cluster_id}/loggers", 200 ]
+  - [ POST, "/clusters/{cluster_id}/loggers", 201 ]
+  - [ GET, "/clusters/{cluster_id}/loggers/{logger_id}", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/loggers/{logger_id}", 200 ]
+  - [ DELETE, "/clusters/{cluster_id}/loggers/{logger_id}", 200 ]
+https://docs.crunchybridge.com/api/cluster-replica:
+  - [ POST, "/clusters/{cluster_id}/replicas", 201 ]
+  - [ PUT, "/clusters/{cluster_id}/actions/detach", 200 ]
+https://docs.crunchybridge.com/api/cluster-upgrade:
+  - [ GET, "/clusters/{cluster_id}/upgrade", 200 ]
+  - [ POST, "/clusters/{cluster_id}/upgrade", 201 ]
+  - [ PUT, "/clusters/{cluster_id}/upgrade", 201 ]
+  - [ DELETE, "/clusters/{cluster_id}/upgrade", 200 ]
+https://docs.crunchybridge.com/api/configuration-parameter:
+  - [ GET, /configuration-parameters, 200 ]
+  - [ GET, "/clusters/{cluster_id}/configuration-parameters", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/configuration-parameters", 200 ]
+  - [ GET, "/clusters/{cluster_id}/configuration-parameters/{configuration_parameter_name}", 200 ]
+https://docs.crunchybridge.com/api/event:
+  - [ GET, /events, 200 ]
+  - [ GET, "/events/{event_id}", 200 ]
+https://docs.crunchybridge.com/api/metric-view:
+  - [ GET, "/metric-views/{name}", 200 ]
+https://docs.crunchybridge.com/api/network:
+  - [ GET, /networks, 200 ]
+  - [ GET, "/networks/{network_id}", 200 ]
+  - [ PATCH, "/networks/{network_id}", 200 ]
+https://docs.crunchybridge.com/api/network-firewall-rule:
+  - [ GET, "/networks/{network_id}/firewall-rules", 200 ]
+  - [ POST, "/networks/{network_id}/firewall-rules", 201 ]
+  - [ GET, "/networks/{network_id}/firewall-rules/{rule_id}", 200 ]
+  - [ PATCH, "/networks/{network_id}/firewall-rules/{rule_id}", 200 ]
+  - [ DELETE, "/networks/{network_id}/firewall-rules/{rule_id}", 200 ]
+https://docs.crunchybridge.com/api/network-peering:
+  - [ GET, "/networks/{network_id}/peerings", 200 ]
+  - [ POST, "/networks/{network_id}/peerings", 201 ]
+  - [ GET, "/networks/{network_id}/peerings/{peering_id}", 200 ]
+  - [ DELETE, "/networks/{network_id}/peerings/{peering_id}", 200 ]
+https://docs.crunchybridge.com/api/postgres-role:
+  - [ GET, "/clusters/{cluster_id}/roles", 200 ]
+  - [ POST, "/clusters/{cluster_id}/roles", 201 ]
+  - [ GET, "/clusters/{cluster_id}/roles/{role_name}", 200 ]
+  - [ PUT, "/clusters/{cluster_id}/roles/{role_name}", 201 ]
+  - [ DELETE, "/clusters/{cluster_id}/roles/{role_name}", 200 ]
+https://docs.crunchybridge.com/api/postgres-version:
+  - [ GET, /postgres-versions, 200 ]
+  - [ GET, "/postgres-versions/{postgres_version_id}", 200 ]
+https://docs.crunchybridge.com/api/private-link:
+  - [ GET, "/clusters/{cluster_id}/private-link", 200 ]
+  - [ POST, "/clusters/{cluster_id}/private-link", 201 ]
+  - [ DELETE, "/clusters/{cluster_id}/private-link", 200 ]
+https://docs.crunchybridge.com/api/private-link-connection:
+  - [ GET, "/clusters/{cluster_id}/private-link-connections", 200 ]
+  - [ POST, "/clusters/{cluster_id}/private-link-connections/{connection_id}/actions/approve", 200 ]
+  - [ POST, "/clusters/{cluster_id}/private-link-connections/{connection_id}/actions/reject", 200 ]
+https://docs.crunchybridge.com/api/provider:
+  - [ GET, /providers, 200 ]
+https://docs.crunchybridge.com/api/query:
+  - [ POST, /queries, 201 ]
+https://docs.crunchybridge.com/api/team:
+  - [ GET, /teams, 200 ]
+  - [ POST, /teams, 200 ]
+  - [ GET, "/teams/{team_id}", 200 ]
+  - [ PATCH, "/teams/{team_id}", 200 ]
+  - [ DELETE, "/teams/{team_id}", 200 ]
+https://docs.crunchybridge.com/api/team-member:
+  - [ GET, "/teams/{team_id}/members", 200 ]
+  - [ POST, "/teams/{team_id}/members", 201 ]
+  - [ GET, "/teams/{team_id}/members/{account_id}", 200 ]
+  - [ PUT, "/teams/{team_id}/members/{account_id}", 200 ]
+  - [ DELETE, "/teams/{team_id}/members/{account_id}", 200 ]

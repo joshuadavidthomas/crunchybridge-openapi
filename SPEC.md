@@ -38,7 +38,7 @@ A contract test is a separate claim. Authoring an operation does not imply that 
 
 ## Goal
 
-Publish a complete, source-backed OpenAPI 3.1 description of the public Crunchy Bridge management API. The bundled document must work as a contract for generated clients, schema validators, Executor, MCP adapters, Cloudflare agents, local pi tools, and other agent runtimes.
+Publish a complete, source-backed OpenAPI 3.1 description of the public Crunchy Bridge management API for generated clients and schema validators.
 
 The OpenAPI document is the source. TypeScript types, Zod schemas, clients, MCP tools, and runtime adapters are generated or built from it.
 
@@ -54,7 +54,6 @@ The project will provide:
 - Agent-safety metadata for destructive, disruptive, sensitive, and long-running operations.
 - Contract tests split by risk and cost.
 - At least one generated TypeScript client and schema build as an interoperability check.
-- Import checks for the agent runtimes chosen before the first stable release.
 - A release and drift-detection process.
 
 ## Scope
@@ -78,7 +77,7 @@ The project will provide:
 - Zod, Valibot, or TypeScript as the contract source.
 - Compatibility aliases for incorrect field names or old local schema shapes.
 - Destructive tests against a personal account, production team, or production cluster.
-- A custom MCP server until an OpenAPI consumer such as Executor has been tested and found insufficient.
+- Runtime integrations, custom MCP servers, and consumer approval-policy testing. These are separate from the OpenAPI contract and its release gates.
 
 ## Decisions
 
@@ -258,8 +257,8 @@ Source: <https://docs.crunchybridge.com/api/account>
 - [x] Record that `access_groups` is marked non-nullable but shown as `null`.
 - [x] Record that `dashboard_settings` appears in the example but not the field table.
 - [ ] Capture and validate an authenticated `GET /account` fixture.
-- [ ] Determine the `access_groups` item shape.
-- [ ] Determine the documented or observed `dashboard_settings` shape.
+- [x] Model `access_groups` as nullable arrays of `AccessGroupMinimal`, using the public Apiary schema.
+- [x] Type dashboard preferences from the public example and internal Apiary field definitions.
 - [ ] Keep `destroyAccount` out of every contract-test suite; model and review it without calling it.
 
 ### Certificates
@@ -310,6 +309,9 @@ Source: <https://docs.crunchybridge.com/api/cluster>
 - [x] Mark destroy destructive; the global contract-test policy requires explicit opt-in and disposable resources.
 - [x] Preserve the cluster list's documented default ordering by `name`.
 - [x] Define the previously unnamed `ClusterDashboardSettings` and `ClusterUpdateVariableBackups` shapes from Apiary.
+- [x] Accept null create-time `parameters`/`roles` and update-time `variable_backups` shown in public request examples.
+- [x] Enforce RFC 1918 CIDRs with prefixes no longer than 20 bits for create, fork, and replica requests.
+- [x] Keep provider/network exclusions specific to each endpoint; the fork docs require plan and region overrides but do not prohibit a network ID.
 - [x] Separate `ClusterStatusUpgrade` from the standalone Phase 5 `ClusterUpgrade` resource.
 - [x] Mark deprecated `disk_usage`, `cluster_id`, and `cpu` fields.
 - [ ] Confirm whether Cluster update accepts an omitted body; its fields are optional and Apiary omits body-level requiredness.
@@ -415,7 +417,8 @@ Source: <https://docs.crunchybridge.com/api/event>
 - [x] Add event-polling instructions that seed from the newest event and then read in ascending order with delay.
 - [x] Keep event `data` and `previous_properties` open because their shape depends on event kind.
 - [ ] Resolve whether `delay` is integer seconds or a duration string; the current union records both conflicting doc forms.
-- [ ] Confirm whether `actor_ip` can be null and whether `previous_properties` can be omitted rather than returned as null.
+- [x] Make actor, request, and historical context optional as declared by the public Apiary schema; keep `actor_ip` non-null when present and `previous_properties` nullable as shown in the public example.
+- [ ] Validate system-generated events and nonempty historical snapshots against live responses.
 
 ### Metric views
 
@@ -424,7 +427,7 @@ Source: <https://docs.crunchybridge.com/api/metric-view>
 - [x] Model metric view, category, series, and interval objects.
 - [x] `GET /metric-views/{name}` — `getMetricView` (`200`).
 - [x] Model the metric-name enum.
-- [x] Document the alternative time windows on each query parameter: paired `begin` and `end`, or `period`.
+- [x] Document the alternative time windows: paired `begin` and `end`, or `period`. Custom windows must last at least one minute; separate OpenAPI query schemas cannot enforce timestamp ordering.
 - [x] Model `resolution_multiplier` as `1`, `2`, `4`, or `8`.
 - [x] Resolve the rendered “array of array” series shape from the first-party machine description.
 - [x] Mark interval `time` deprecated in favor of `period_begin`, omit the example-only `events` field, and add a schema-checked response example.
@@ -482,7 +485,7 @@ Source: <https://docs.crunchybridge.com/api/postgres-role>
 - [x] `DELETE /clusters/{cluster_id}/roles/{role_name}` — `destroyPostgresRole` (`200`).
 - [x] Mark credential-bearing responses sensitive and role mutations disruptive; deletion is destructive.
 - [x] Model repeatable `account_id` filtering with Apiary's nullable item shape.
-- [x] Describe built-in, account, `user`, and deprecated `default` role names without closing the string set.
+- [x] Constrain upsert names to `application`, `postgres`, `user`, and `u_<account_id>` as documented for PUT. Keep read/delete names open, including deprecated `default` roles.
 - [x] Keep create bodyless: public docs declare none and the first-party CLI sends an empty object only as transport behavior.
 - [x] Preserve the sole documented `201` upsert status; no first-party evidence confirms `200` on update.
 - [ ] Confirm whether the all-optional upsert request body may be omitted.
@@ -515,9 +518,9 @@ Source: <https://docs.crunchybridge.com/api/private-link>
 Source: <https://docs.crunchybridge.com/api/private-link-connection>
 
 - [x] Model `ClusterPrivateLinkConnection` and the unpaginated list response.
-- [x] `GET /clusters/{cluster_id}/private-link/connections` — `listClusterPrivateLinkConnections` (`200`).
-- [x] `POST /clusters/{cluster_id}/private-link/connections/{connection_id}/approve` — `approveClusterPrivateLinkConnection` (`200`).
-- [x] `POST /clusters/{cluster_id}/private-link/connections/{connection_id}/reject` — `rejectClusterPrivateLinkConnection` (`200`).
+- [x] `GET /clusters/{cluster_id}/private-link-connections` — `listClusterPrivateLinkConnections` (`200`).
+- [x] `POST /clusters/{cluster_id}/private-link-connections/{connection_id}/actions/approve` — `approveClusterPrivateLinkConnection` (`200`).
+- [x] `POST /clusters/{cluster_id}/private-link-connections/{connection_id}/actions/reject` — `rejectClusterPrivateLinkConnection` (`200`).
 - [x] Mark list output sensitive and approval/rejection disruptive and sensitive.
 - [x] Do not add create or delete operations; customer-cloud endpoint creation controls connection appearance.
 
@@ -642,7 +645,7 @@ Source: <https://docs.crunchybridge.com/api-concepts/idempotency>
 Source: <https://docs.crunchybridge.com/api-concepts/getting-started>
 
 - [x] Model guaranteed `message` and `request_id` fields.
-- [x] Record live-observed `code` and `is_transient` fields without inventing the non-null type of `code`.
+- [x] Type error codes and multi-factor challenge data from the public Apiary schemas; retain the public docs' required `message` and `request_id` fields.
 - [x] Model `X-Request-Id` on current responses.
 - [x] Model `Retry-After` on `429`.
 - [x] Add the client-supplied `X-Request-Id` request header.
@@ -713,7 +716,7 @@ Exit gate:
 
 ### Phase 3: network resources
 
-Status: in progress; all 22 operations are authored. An empty NetworkList fixture passes. Populated network responses and approval-policy enforcement need verification.
+Status: in progress; all 22 operations are authored. An empty NetworkList fixture passes. Populated network responses need verification.
 
 Resources: Networks, network firewall rules, deprecated cluster firewall rules, network peerings, private links, and private-link connections.
 
@@ -733,7 +736,7 @@ Exit gate:
 
 ### Phase 4: cluster core
 
-Status: in progress; all 16 operations are authored. An empty ClusterList fixture passes and Executor preserves representative request shapes. Cluster get/status fixtures and approval enforcement need verification.
+Status: in progress; all 16 operations are authored. An empty ClusterList fixture passes. Cluster get/status fixtures need verification.
 
 Resources: Cluster list/create/get/update/delete/status plus cluster actions.
 
@@ -748,12 +751,12 @@ Exit gate:
 
 - All 16 Cluster operations are authored.
 - List/get/status responses validate against sanitized fixtures.
-- An agent-consumer smoke report shows unique operation names, resolved input schemas, preserved required fields, and no anonymous required request objects.
+- Offline checks verify unique operation names, resolved input schemas, and documented request constraints.
 - Destructive operations carry approval metadata.
 
 ### Phase 5: cluster adjunct resources
 
-Status: in progress; all 22 operations are authored, while authenticated fixtures, redaction checks, and approval-policy checks remain open.
+Status: in progress; all 22 operations are authored. Authenticated fixtures and redaction checks remain open.
 
 Resources: Backups, loggers, replicas, upgrades, configuration parameters, and Postgres roles.
 
@@ -767,7 +770,7 @@ Exit gate:
 
 - Every operation in the phase is authored.
 - Sensitive outputs have redaction guidance.
-- Disruptive actions require approval in the integration proof.
+- Disruptive actions carry the corresponding operation metadata.
 - All remaining “array of array” gaps have either a concrete schema or a visible unresolved note.
 
 ### Phase 6: metrics and queries
@@ -808,31 +811,19 @@ Exit gate:
 - Default CI never contacts the live API and never needs secrets.
 - Secret scanning passes on fixtures and logs.
 
-### Phase 8: generated consumer checks
+### Phase 8: generated contract checks
 
-Status: in progress; generated clients compile, Executor imports all 84 operations, and eight distinct authenticated read operations succeed using host-side credentials. Descriptor checks preserve representative required inputs, nulls, enums, and arrays. Runtime constraint validation, approval-policy enforcement, and Cloudflare integration remain unverified.
-
-Work:
-
-- Compare Hey API, Orval, and Kubb against the finished schemas; pick one only for the interoperability fixture or package that the project needs.
-- Generate TypeScript types, a fetch client, and Zod validators from OpenAPI.
-- Compile the generated output in CI without hand edits.
-- Import the bundled spec into Executor and inspect tool names, auth injection, policy handling, and destructive approvals.
-- Test the current Cloudflare Agents path: OpenAPI Code Mode if suitable, otherwise a generated client exposed through AI SDK tools or MCP.
-- Test current pi consumption through its available MCP or extension mechanism.
-- Test Cursor through a remote MCP endpoint without committing credentials.
-- Keep runtime-specific adapters out of the contract package unless they prove small and broadly useful.
+Status: exited; OpenAPI TypeScript and Hey API output compile, and generated Zod validators pass runtime tests.
 
 Exit gate:
 
-- At least one TypeScript generation path compiles.
-- Executor or the selected MCP layer loads all operations with resolved references and preserves required inputs, enums, nullable fields, arrays, and request bodies in a recorded smoke report.
-- Destructive operations require approval and secrets stay host-side.
-- One Cloudflare agent and one local agent complete a read-only call through generated tooling.
+- Generated TypeScript covers all operation IDs and compiles without hand edits.
+- Generated types preserve representative required inputs, enums, nullable fields, arrays, and request bodies.
+- Generated validators pass positive and negative tests. Ajv checks JSON Schema constraints that generators cannot preserve.
 
 ### Phase 9: release and drift control
 
-Status: in progress; previews through `v0.1.1` are published. Release comparison and weekly documentation drift checks pass locally and in CI. Stable-release consumer and live-contract checks remain open.
+Status: in progress; previews through `v0.1.1` are published. Release comparison and weekly documentation drift checks pass locally and in CI. Stable-release live-contract checks remain open.
 
 Work:
 
@@ -883,7 +874,8 @@ npm run check:hey-api
 - [x] Assert every operation has a Crunchy Bridge `x-docs-url`.
 - [x] Assert the bundle operation count matches `SPEC.md`, generated operation IDs have an exhaustive type-only map, and the standalone YAML contains no aliases.
 - [x] Assert every operation has a description and every POST/PATCH exposes idempotency request, conflict, and replay contracts.
-- [x] Assert the sole documented success status and anonymous-access classification for every operation.
+- [x] Assert all 84 method/path/success-status combinations against `tests/contract/operations.yaml`, grouped by their public source pages.
+- [x] Assert the anonymous-access classification for every operation.
 - [x] Validate compact unauthenticated observation records against operation IDs, statuses, and effective security.
 - [x] Validate high-risk request invariants and backup-token provider variants against the bundled JSON Schemas with Ajv.
 - [x] Require every mutation to carry an agent-risk flag or appear in the reviewed low-risk allowlist, and pin critical operations to their required flag sets.
@@ -899,8 +891,7 @@ npm run check:hey-api
 ### Manual checks before each release
 
 - [ ] Compare every changed operation with its official docs page.
-- [ ] Inspect generated tool names and descriptions from an agent's point of view.
-- [ ] Check destructive and disruptive approval behavior.
+- [ ] Review changed operation names, descriptions, and risk metadata.
 - [ ] Confirm that auth credentials stay outside prompts, generated code, fixtures, and logs.
 - [ ] Confirm that examples contain no real account, team, cluster, email, endpoint, token, SQL, or customer data.
 - [ ] Review unresolved questions and block stable release on contract-breaking unknowns.
@@ -956,20 +947,18 @@ Changes that require manual review:
 
 | Gap | Risk | Planned resolution |
 | --- | --- | --- |
-| Error `code` has no known non-null type | Generated clients may type it too loosely or incorrectly | Capture safe first-party error examples; keep it unconstrained until then |
 | Global pagination max says 100 while resource pages say 200 | Valid requests may be rejected by generated validation | Use endpoint-specific maxima and keep the conflict recorded |
 | Several paginated list schemas omit cursor metadata | Clients may stop after one page or model a false envelope | Verify with live read-only calls before claiming fields |
 | Docs render many collection fields as “array of array” | Generated types may become nested arrays or `unknown` | Use named resource examples, CLI models, and live fixtures |
-| Account fields conflict with its example | Requiredness and nullability may be wrong | Validate authenticated and SSO-shaped responses when available |
+| Account fields conflict with its example | Live responses may differ from the source-backed schema | Capture stored and synthetic SSO account fixtures; item types and optionality now have offline regression tests |
 | Event `delay` is called an integer while examples use `10s` and `30s` | Clients may send the wrong wire type | Keep the integer-or-duration union until a safe live request settles it |
-| Event actor and previous-property presence is unclear | Generated fields may be stricter than live system events | Capture system-generated and update-event fixtures |
+| Event historical context varies by event kind | Synthetic tests cannot confirm every live variant | Capture system-generated events and nonempty update snapshots |
 | Provider `id` is declared optional and nullable but always appears live | Generated callers may handle an impossible null or the schema may reject a future edge case | Keep the declared shape until authenticated or broader evidence settles it |
-| Team examples and field tables disagree on `is_personal`, SSO settings, and role flavor | Identity-policy clients may misread missing or null fields | Capture an authenticated Team fixture before Phase 2 exits |
+| Team examples and field tables disagree on SSO settings and role flavor | Clients may misread missing or null fields | Extend the existing Team fixture coverage to SSO-enabled teams |
 | Invited team members may have no `account_id`, but removal requires one | Callers may be unable to revoke a pending invitation | Ask Crunchy Data or capture dashboard traffic; do not invent an email- or member-ID route |
 | Query prose mentions undocumented endpoints | Adding them would create an unsupported contract | Keep them excluded until official documentation appears |
 | Some writes return unusual statuses | Generic generators may assume CRUD defaults | Preserve exact statuses and test generated clients |
 | `openapi-typescript` makes declared response-header keys required even when the Header Object says `required: false` | Generated clients may overstate `Idempotency-Key` and `Idempotency-Replay` presence | Record the generator limitation and compare runtime-validator/client generators in Phase 8 |
-| Generated tool sets may be too large for flat agent contexts | Agent quality and token use may suffer | Test Executor search/execute or an equivalent compact tool surface |
 | Live mutation tests can cost money or damage data | Verification could become unsafe | Keep them opt-in, bounded, and tied to disposable resources |
 | Generated first-party Apiary descriptions exist but are unversioned and contain schema defects | Treating them as a canonical release could import bad requiredness, nullability, or copy errors | Diff both Apiary documents, keep public docs authoritative, and review every machine-derived change |
 
@@ -980,8 +969,7 @@ Resolve these before the named phase exits:
 - [x] Before Phase 0 exits: choose the repository and spec license (MIT).
 - [ ] Before `1.0.0`: settle the access-token default and maximum lifetime.
 - [x] Before Phase 2 exits: choose a sanitized fixture format and redaction procedure (`tests/contract/fixtures.yaml` and `tests/contract/README.md`; sanitize before emitting from Executor).
-- [ ] Before Phase 7 starts: provide or create a dedicated test team and define its spending limit.
-- [x] Before Phase 8 exits: choose the TypeScript generator and primary agent integration path (Hey API interoperability checks and Executor first).
+- [x] Before Phase 8 exits: choose the generator checks (OpenAPI TypeScript and Hey API TypeScript/Zod).
 - [x] Before Phase 9 exits: choose the stable publication URL and release version policy (GitHub release assets at `/releases/download/v<version>/openapi.yaml`, starting with a `0.1.0` preview; `1.0.0` still requires the stable-release checks).
 
 ## Stable-release completion definition
@@ -990,20 +978,18 @@ Version `1.0.0` requires all of the following:
 
 - [ ] All 84 documented operations meet the operation completion rules.
 - [ ] Every documented schema field is modeled or called out as unresolved with a source-backed reason.
-- [ ] Every public docs page in `pages.txt` maps to a checklist section here.
-- [ ] Shared authentication, EID, pagination, idempotency, request ID, error, and rate-limit behavior is modeled.
-- [ ] Deprecated fields and operations carry `deprecated: true`.
+- [x] Every public docs page in `pages.txt` maps to a checklist section here.
+- [x] Shared authentication, EID, pagination, idempotency, request ID, error, and rate-limit behavior is modeled.
+- [x] Deprecated fields and operations carry `deprecated: true`.
 - [ ] Destructive, disruptive, sensitive, idempotent, long-running, and cost-bearing operations have settled metadata.
-- [ ] The modular source and bundled document lint without warnings.
-- [ ] The bundle contains no external references.
+- [x] The modular source and bundled document lint without warnings.
+- [x] The bundle contains no external references.
 - [ ] Committed examples validate and contain no secrets or personal data.
 - [ ] Read-only contract checks cover every endpoint that a test account can reach.
 - [ ] Untested writes and destructive operations are listed with their safety reason.
-- [ ] A generated TypeScript client and validator set compile without hand edits.
-- [x] The chosen agent integration performs an authenticated read-only call with host-side secrets (Executor; eight distinct scoped read operations).
-- [ ] Approval policy blocks unattended destructive operations.
-- [ ] A tagged release publishes an immutable bundle.
+- [x] A generated TypeScript client and validator set compile without hand edits.
+- [x] Versioned releases publish immutable bundles.
 - [x] Breaking-change and docs-drift checks pass in CI; weekly documentation checks are scheduled.
-- [ ] README usage and contributor instructions match the released workflow.
+- [x] README usage and contributor instructions match the released workflow.
 - [x] The repository has a license.
 

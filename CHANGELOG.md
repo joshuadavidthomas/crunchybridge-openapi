@@ -22,11 +22,23 @@ and this project attempts to adhere to [Semantic Versioning](https://semver.org/
 
 - CI reports for breaking contract changes and agent-risk metadata changes against the newest release.
 - Weekly checks for upstream documentation changes, including newly listed API resource pages.
+- Offline checks of all 84 documented method/path/status combinations and regression tests for schema corrections.
+- Typed public error codes and multi-factor challenge responses from the first-party API description.
 
 ### Changed
 
 - Commit `dist/openapi.yaml` so consumers can follow a stable raw `main` URL and re-fetch updates. Release assets remain versioned snapshots.
 - Check bundle freshness in `npm test` without overwriting the committed file. Run `npm run bundle` after changing the modular source.
+
+### Fixed
+
+These corrections can break clients generated from v0.1.1.
+
+- Use the public `/private-link-connections` routes, including `/actions/approve` and `/actions/reject`.
+- Correct Account, Event, AccessToken, and pagination field optionality. Type Account access groups and dashboard settings.
+- Require non-null token expiry timestamps, Event actor IPs when present, and team-member update roles.
+- Accept null cluster request collections and backup settings shown in public examples. Remove the unsupported fork provider/network exclusion.
+- Validate private-network CIDRs, provider integer fields, and the documented role-upsert names. Document the minimum metric window.
 
 ## [0.1.1]
 

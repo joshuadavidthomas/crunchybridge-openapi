@@ -129,7 +129,5 @@ TeamMemberUpdateRequest:
     - role
   properties:
     role:
-      oneOf:
-        - $ref: ./team.yaml#/TeamRole
-        - type: "null"
+      $ref: ./team.yaml#/TeamRole
   additionalProperties: false

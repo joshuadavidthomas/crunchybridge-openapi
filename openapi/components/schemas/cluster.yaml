@@ -196,6 +196,8 @@ Cluster:
         - integer
         - "null"
       format: int32
+      minimum: 0
+      maximum: 23
     major_version:
       type: integer
       format: int32
@@ -452,16 +454,15 @@ ClusterCreateRequest:
       minimum: 0
       maximum: 23
     network_cidr4:
-      type:
-        - string
-        - "null"
-      description: Private IPv4 CIDR with prefix length no longer than 20 bits.
+      oneOf:
+        - $ref: ./common.yaml#/PrivateNetworkCIDR4
+        - type: "null"
     network_id:
       oneOf:
         - $ref: ./common.yaml#/EID
         - type: "null"
     parameters:
-      type: array
+      type: [array, "null"]
       items:
         $ref: '#/ConfigurationParameterInput'
     postgres_version_id:
@@ -484,7 +485,7 @@ ClusterCreateRequest:
         - string
         - "null"
     roles:
-      type: array
+      type: [array, "null"]
       items:
         $ref: '#/ClusterCreateRole'
     snowflake_entity_id:
@@ -589,7 +590,9 @@ ClusterUpdateRequest:
       minimum: 7
       maximum: 365
     variable_backups:
-      $ref: '#/ClusterUpdateVariableBackups'
+      oneOf:
+        - $ref: '#/ClusterUpdateVariableBackups'
+        - type: "null"
   additionalProperties: false
 
 ClusterForkRequest:
@@ -612,11 +615,6 @@ ClusterForkRequest:
         properties:
           firewall_mode: { type: string }
           network_id: { $ref: ./common.yaml#/EID }
-    - not:
-        required: [network_id, provider_id]
-        properties:
-          network_id: { $ref: ./common.yaml#/EID }
-          provider_id: { type: string }
     - if:
         required: [provider_id]
         properties:
@@ -644,9 +642,9 @@ ClusterForkRequest:
         - $ref: ./common.yaml#/EID
         - type: "null"
     network_cidr4:
-      type:
-        - string
-        - "null"
+      oneOf:
+        - $ref: ./common.yaml#/PrivateNetworkCIDR4
+        - type: "null"
     network_id:
       oneOf:
         - $ref: ./common.yaml#/EID

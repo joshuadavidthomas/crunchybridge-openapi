@@ -4,11 +4,13 @@ ProviderDisk:
     - rate
   properties:
     rate:
-      type: number
+      type: integer
+      format: int64
       description: Per-GB disk price rate for non-warehouse plans.
     rate_warehouse:
+      format: int64
       type:
-        - number
+        - integer
         - "null"
       description: Per-GB disk price rate for warehouse plans.
   additionalProperties: true
@@ -28,7 +30,8 @@ Plan:
       type: string
       description: Name shown to users.
     cpu:
-      type: number
+      type: integer
+      format: int64
       deprecated: true
       description: Deprecated. Use `vcpu`.
     vcpu:
@@ -38,20 +41,23 @@ Plan:
       type: number
       description: Memory in gigabytes, which may be fractional.
     iops_baseline:
+      format: int64
       type:
-        - number
+        - integer
         - "null"
       description: Baseline storage IOPS when the provider publishes one.
     iops_maximum:
+      format: int64
       type:
-        - number
+        - integer
         - "null"
       description: Maximum storage IOPS when the provider publishes one.
     maximum_performance_limited:
       type: boolean
       description: Whether the plan limits maximum storage performance.
     rate:
-      type: number
+      type: integer
+      format: int64
       description: Plan price rate in cents.
     region_ids:
       description: Region IDs where the plan is available. Null means every region.

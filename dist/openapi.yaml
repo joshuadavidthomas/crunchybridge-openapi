@@ -1388,11 +1388,28 @@ paths:
       tags:
         - Postgres roles
       summary: Upsert a Postgres role
-      description: Changes flavor or credentials, or creates the named role. Only `201` is documented; request-body presence remains unconfirmed.
+      description: |
+        Changes flavor or credentials, or creates the named role. The upsert accepts
+        `application`, `postgres`, `user`, or an account role named `u_<account_id>`.
+        Only `201` is documented; request-body presence remains unconfirmed.
       x-docs-url: https://docs.crunchybridge.com/api/postgres-role#update-role
       x-idempotent: true
       x-sensitive: true
       x-disruptive: true
+      parameters:
+        - name: role_name
+          in: path
+          required: true
+          description: Built-in or account role to create or update.
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - application
+                  - postgres
+                  - user
+              - type: string
+                pattern: ^u_[a-z2-7]{25}[aeimquy4]$
       requestBody:
         required: false
         content:
@@ -1880,7 +1897,7 @@ paths:
           $ref: '#/components/responses/RateLimited'
         default:
           $ref: '#/components/responses/Error'
-  /clusters/{cluster_id}/private-link/connections:
+  /clusters/{cluster_id}/private-link-connections:
     parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/ClusterId'
@@ -1913,7 +1930,7 @@ paths:
           $ref: '#/components/responses/RateLimited'
         default:
           $ref: '#/components/responses/Error'
-  /clusters/{cluster_id}/private-link/connections/{connection_id}/approve:
+  /clusters/{cluster_id}/private-link-connections/{connection_id}/actions/approve:
     parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/ClusterId'
@@ -1958,7 +1975,7 @@ paths:
           $ref: '#/components/responses/RateLimited'
         default:
           $ref: '#/components/responses/Error'
-  /clusters/{cluster_id}/private-link/connections/{connection_id}/reject:
+  /clusters/{cluster_id}/private-link-connections/{connection_id}/actions/reject:
     parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/ClusterId'
@@ -2179,7 +2196,10 @@ paths:
       tags:
         - Metric views
       summary: Get a metric view
-      description: Returns chart series for either a custom `begin`/`end` window or a named `period`.
+      description: |
+        Returns chart series for either a custom `begin`/`end` window or a named
+        `period`. A custom window must last at least one minute, with `end` later
+        than `begin`.
       x-docs-url: https://docs.crunchybridge.com/api/metric-view#get-metric-view
       x-idempotent: true
       parameters:
@@ -2198,7 +2218,7 @@ paths:
         - name: end
           in: query
           required: false
-          description: Custom window end. Send with `begin`; do not send with `period`.
+          description: Custom window end, at least one minute after `begin`. Send with `begin`; do not send with `period`.
           schema:
             type: string
             format: date-time
@@ -3431,19 +3451,42 @@ components:
         - request_id
       properties:
         code:
-          description: |
-            A machine-readable error code when one is available. Its non-null type
-            is not documented; an unauthenticated request returned null.
+          type:
+            - string
+            - 'null'
+          enum:
+            - account_disabled
+            - account_email_not_verified
+            - account_sso_only
+            - maintenance_mode
+            - multi_factor_challenge_required
+            - transient_server_error
+            - null
+          description: Public machine-readable error code, when one is available.
         is_transient:
           type: boolean
           description: Whether retrying the request may succeed without a change.
         message:
           type: string
           description: A human-readable description of the error.
+        multi_factor:
+          $ref: '#/components/schemas/MultiFactorChallenge'
         request_id:
           type: string
           format: uuid
           description: The request identifier to include when contacting support.
+      if:
+        required:
+          - code
+        properties:
+          code:
+            const: multi_factor_challenge_required
+      then:
+        required:
+          - multi_factor
+        properties:
+          multi_factor:
+            $ref: '#/components/schemas/MultiFactorChallenge'
       additionalProperties: true
     Cluster:
       type: object
@@ -3507,6 +3550,8 @@ components:
             - integer
             - 'null'
           format: int32
+          minimum: 0
+          maximum: 23
         major_version:
           type: integer
           format: int32
@@ -3767,16 +3812,17 @@ components:
           minimum: 0
           maximum: 23
         network_cidr4:
-          type:
-            - string
-            - 'null'
-          description: Private IPv4 CIDR with prefix length no longer than 20 bits.
+          oneOf:
+            - $ref: '#/components/schemas/PrivateNetworkCIDR4'
+            - type: 'null'
         network_id:
           oneOf:
             - $ref: '#/components/schemas/EID'
             - type: 'null'
         parameters:
-          type: array
+          type:
+            - array
+            - 'null'
           items:
             $ref: '#/components/schemas/ConfigurationParameterInput'
         postgres_version_id:
@@ -3799,7 +3845,9 @@ components:
             - string
             - 'null'
         roles:
-          type: array
+          type:
+            - array
+            - 'null'
           items:
             $ref: '#/components/schemas/ClusterCreateRole'
         snowflake_entity_id:
@@ -3864,7 +3912,9 @@ components:
           minimum: 7
           maximum: 365
         variable_backups:
-          $ref: '#/components/schemas/ClusterUpdateVariableBackups'
+          oneOf:
+            - $ref: '#/components/schemas/ClusterUpdateVariableBackups'
+            - type: 'null'
       additionalProperties: false
     ClusterForkRequest:
       type: object
@@ -3898,15 +3948,6 @@ components:
                 type: string
               network_id:
                 $ref: '#/components/schemas/EID'
-        - not:
-            required:
-              - network_id
-              - provider_id
-            properties:
-              network_id:
-                $ref: '#/components/schemas/EID'
-              provider_id:
-                type: string
         - if:
             required:
               - provider_id
@@ -3940,9 +3981,9 @@ components:
             - $ref: '#/components/schemas/EID'
             - type: 'null'
         network_cidr4:
-          type:
-            - string
-            - 'null'
+          oneOf:
+            - $ref: '#/components/schemas/PrivateNetworkCIDR4'
+            - type: 'null'
         network_id:
           oneOf:
             - $ref: '#/components/schemas/EID'
@@ -4247,10 +4288,10 @@ components:
             - $ref: '#/components/schemas/EID'
             - type: 'null'
         network_cidr4:
-          type:
-            - string
-            - 'null'
-          description: RFC 1918 private IPv4 CIDR with a prefix no longer than 20 bits; mutually exclusive with `network_id`.
+          oneOf:
+            - $ref: '#/components/schemas/PrivateNetworkCIDR4'
+            - type: 'null'
+          description: Private IPv4 CIDR; mutually exclusive with `network_id`.
         network_id:
           oneOf:
             - $ref: '#/components/schemas/EID'
@@ -4703,7 +4744,6 @@ components:
       description: Cursor metadata returned by a paginated list operation.
       required:
         - has_more
-        - next_cursor
       properties:
         has_more:
           type: boolean
@@ -4783,10 +4823,8 @@ components:
       type: object
       description: A credential issued from a Crunchy Bridge API key.
       required:
-        - access_token
         - account_id
         - api_key_id
-        - application_name
         - created_at
         - expires_at
         - expires_in
@@ -4818,14 +4856,9 @@ components:
           format: date-time
           description: When the access token was created.
         expires_at:
-          type:
-            - string
-            - 'null'
+          type: string
           format: date-time
-          description: |
-            When the access token expires. Null is allowed because the request field
-            table says an omitted expiry creates a non-expiring token, despite the
-            page introduction stating a one-hour default.
+          description: When the access token expires.
         expires_in:
           type: integer
           minimum: 0
@@ -4853,17 +4886,10 @@ components:
         A user account. SSO authentication may return a synthetic account without
         some fields that appear on a stored account.
       required:
-        - access_groups
-        - default_team_id
         - email
-        - first_name
         - has_password
         - has_personal_team
         - has_sso
-        - id
-        - last_name
-        - last_seen_at
-        - login_url
         - multi_factor_enabled
         - name
         - notifications_enabled
@@ -4871,15 +4897,12 @@ components:
         id:
           $ref: '#/components/schemas/EID'
         access_groups:
-          description: |
-            Access groups on the account's team, ordered by access group ID. The
-            docs declare this as an array of arrays, while their example is null.
+          description: Access groups on the account's team, ordered by access group ID.
           type:
             - array
             - 'null'
           items:
-            type: array
-            items: {}
+            $ref: '#/components/schemas/AccessGroupMinimal'
         created_at:
           description: |
             When the account was created. Synthetic accounts returned during SSO
@@ -4889,11 +4912,7 @@ components:
             - 'null'
           format: date-time
         dashboard_settings:
-          type: object
-          description: |
-            Dashboard preferences. This field appears in the documented example
-            but is absent from the resource field table.
-          additionalProperties: true
+          $ref: '#/components/schemas/AccountDashboardSettings'
         default_team_id:
           description: |
             The default team's EID. Null means the personal team whose ID matches
@@ -4984,20 +5003,12 @@ components:
         machine-readable format. Historical `data` may not match current resource
         schemas.
       required:
-        - actor_email
-        - actor_id
-        - actor_ip
-        - cluster_id
         - created_at
-        - data
         - description
         - id
         - kind
         - object_id
         - object_kind
-        - previous_properties
-        - request_id
-        - team_id
       properties:
         id:
           allOf:
@@ -5014,9 +5025,7 @@ components:
             - $ref: '#/components/schemas/EID'
             - type: 'null'
         actor_ip:
-          type:
-            - string
-            - 'null'
+          type: string
           description: IP address of the actor, if the event has one.
         cluster_id:
           description: EID of the associated cluster, if any.
@@ -5475,9 +5484,7 @@ components:
         - role
       properties:
         role:
-          oneOf:
-            - $ref: '#/components/schemas/TeamRole'
-            - type: 'null'
+          $ref: '#/components/schemas/TeamRole'
       additionalProperties: false
     Network:
       type: object
@@ -5720,6 +5727,93 @@ components:
           items:
             $ref: '#/components/schemas/ClusterPrivateLinkConnection'
       additionalProperties: true
+    MultiFactorChallenge:
+      type: object
+      description: |
+        Available challenge methods. Retry the request with a response in the
+        indicated header for an enabled method.
+      required:
+        - is_required
+        - recovery_code
+        - totp
+        - webauthn
+      properties:
+        is_required:
+          type: boolean
+          const: true
+        recovery_code:
+          type: object
+          required:
+            - header
+            - is_enabled
+            - num_valid
+          properties:
+            header:
+              type: string
+            is_enabled:
+              type: boolean
+            num_valid:
+              type: integer
+              format: int64
+          additionalProperties: true
+        totp:
+          type: object
+          required:
+            - header
+            - is_enabled
+          properties:
+            header:
+              type: string
+            is_enabled:
+              type: boolean
+          additionalProperties: true
+        webauthn:
+          type: object
+          required:
+            - header
+            - is_enabled
+          properties:
+            header:
+              type: string
+            is_enabled:
+              type: boolean
+            credential_request_options:
+              type: object
+              description: Public key credential request options for navigator.credentials.get().
+              additionalProperties: true
+          additionalProperties: true
+      additionalProperties: true
+    AccessGroupMinimal:
+      type: object
+      required:
+        - id
+        - is_system
+        - name
+        - team_id
+      properties:
+        id:
+          $ref: '#/components/schemas/EID'
+        is_system:
+          type: boolean
+        name:
+          type: string
+        team_id:
+          $ref: '#/components/schemas/EID'
+      additionalProperties: true
+    AccountDashboardSettings:
+      type: object
+      description: Dashboard preferences shown in the public Account example.
+      properties:
+        rows_per_page:
+          type:
+            - integer
+            - 'null'
+          format: int32
+        skip_cluster_onboarding:
+          type:
+            - boolean
+            - 'null'
+      additionalProperties: true
     ChangelogComponent:
       type: string
       enum:
@@ -5817,6 +5911,14 @@ components:
           type: integer
           format: int32
       additionalProperties: true
+    PrivateNetworkCIDR4:
+      type: string
+      description: RFC 1918 IPv4 network contained in 10/8, 172.16/12, or 192.168/16, with a prefix length no greater than 20.
+      allOf:
+        - type: string
+          pattern: ^(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}/(?:[89]|1[0-9]|20)$
+        - type: string
+          pattern: ^(?:10\..*/(?:[89]|1[0-9]|20)|172\.(?:1[6-9]|2[0-9]|3[01])\..*/(?:1[2-9]|20)|192\.168\..*/(?:1[6-9]|20))$
     ConfigurationParameterInput:
       type: object
       required:
@@ -6125,11 +6227,13 @@ components:
         - rate
       properties:
         rate:
-          type: number
+          type: integer
+          format: int64
           description: Per-GB disk price rate for non-warehouse plans.
         rate_warehouse:
+          format: int64
           type:
-            - number
+            - integer
             - 'null'
           description: Per-GB disk price rate for warehouse plans.
       additionalProperties: true
@@ -6148,7 +6252,8 @@ components:
           type: string
           description: Name shown to users.
         cpu:
-          type: number
+          type: integer
+          format: int64
           deprecated: true
           description: Deprecated. Use `vcpu`.
         vcpu:
@@ -6158,20 +6263,23 @@ components:
           type: number
           description: Memory in gigabytes, which may be fractional.
         iops_baseline:
+          format: int64
           type:
-            - number
+            - integer
             - 'null'
           description: Baseline storage IOPS when the provider publishes one.
         iops_maximum:
+          format: int64
           type:
-            - number
+            - integer
             - 'null'
           description: Maximum storage IOPS when the provider publishes one.
         maximum_performance_limited:
           type: boolean
           description: Whether the plan limits maximum storage performance.
         rate:
-          type: number
+          type: integer
+          format: int64
           description: Plan price rate in cents.
         region_ids:
           description: Region IDs where the plan is available. Null means every region.
@@ -6319,23 +6427,6 @@ components:
             - string
             - 'null'
       additionalProperties: false
-    AccessGroupMinimal:
-      type: object
-      required:
-        - id
-        - is_system
-        - name
-        - team_id
-      properties:
-        id:
-          $ref: '#/components/schemas/EID'
-        is_system:
-          type: boolean
-        name:
-          type: string
-        team_id:
-          $ref: '#/components/schemas/EID'
-      additionalProperties: true
     AccountTeamMember:
       type: object
       required:

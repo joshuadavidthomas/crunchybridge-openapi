@@ -68,10 +68,8 @@ AccessToken:
   type: object
   description: A credential issued from a Crunchy Bridge API key.
   required:
-    - access_token
     - account_id
     - api_key_id
-    - application_name
     - created_at
     - expires_at
     - expires_in
@@ -103,14 +101,9 @@ AccessToken:
       format: date-time
       description: When the access token was created.
     expires_at:
-      type:
-        - string
-        - "null"
+      type: string
       format: date-time
-      description: |
-        When the access token expires. Null is allowed because the request field
-        table says an omitted expiry creates a non-expiring token, despite the
-        page introduction stating a one-hour default.
+      description: When the access token expires.
     expires_in:
       type: integer
       minimum: 0

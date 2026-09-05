@@ -132,11 +132,11 @@ paths:
     $ref: ./paths/cluster-firewall-rule.yaml#/item
   /clusters/{cluster_id}/private-link:
     $ref: ./paths/private-link.yaml#/item
-  /clusters/{cluster_id}/private-link/connections:
+  /clusters/{cluster_id}/private-link-connections:
     $ref: ./paths/private-link-connection.yaml#/collection
-  /clusters/{cluster_id}/private-link/connections/{connection_id}/approve:
+  /clusters/{cluster_id}/private-link-connections/{connection_id}/actions/approve:
     $ref: ./paths/private-link-connection.yaml#/approve
-  /clusters/{cluster_id}/private-link/connections/{connection_id}/reject:
+  /clusters/{cluster_id}/private-link-connections/{connection_id}/actions/reject:
     $ref: ./paths/private-link-connection.yaml#/reject
   /events:
     $ref: ./paths/event.yaml#/collection

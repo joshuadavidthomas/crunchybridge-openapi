@@ -32,8 +32,10 @@ ClusterReplicaCreateRequest:
         - $ref: ./common.yaml#/EID
         - type: "null"
     network_cidr4:
-      type: [string, "null"]
-      description: RFC 1918 private IPv4 CIDR with a prefix no longer than 20 bits; mutually exclusive with `network_id`.
+      oneOf:
+        - $ref: ./common.yaml#/PrivateNetworkCIDR4
+        - type: "null"
+      description: Private IPv4 CIDR; mutually exclusive with `network_id`.
     network_id:
       oneOf:
         - $ref: ./common.yaml#/EID

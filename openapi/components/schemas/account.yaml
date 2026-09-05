@@ -4,17 +4,10 @@ Account:
     A user account. SSO authentication may return a synthetic account without
     some fields that appear on a stored account.
   required:
-    - access_groups
-    - default_team_id
     - email
-    - first_name
     - has_password
     - has_personal_team
     - has_sso
-    - id
-    - last_name
-    - last_seen_at
-    - login_url
     - multi_factor_enabled
     - name
     - notifications_enabled
@@ -22,15 +15,12 @@ Account:
     id:
       $ref: ./common.yaml#/EID
     access_groups:
-      description: |
-        Access groups on the account's team, ordered by access group ID. The
-        docs declare this as an array of arrays, while their example is null.
+      description: Access groups on the account's team, ordered by access group ID.
       type:
         - array
         - "null"
       items:
-        type: array
-        items: {}
+        $ref: ./team-member.yaml#/AccessGroupMinimal
     created_at:
       description: |
         When the account was created. Synthetic accounts returned during SSO
@@ -40,11 +30,7 @@ Account:
         - "null"
       format: date-time
     dashboard_settings:
-      type: object
-      description: |
-        Dashboard preferences. This field appears in the documented example
-        but is absent from the resource field table.
-      additionalProperties: true
+      $ref: '#/AccountDashboardSettings'
     default_team_id:
       description: |
         The default team's EID. Null means the personal team whose ID matches
@@ -128,3 +114,14 @@ Account:
       name: Cheshire Cat
       notifications_enabled: true
       updated_at: "2021-07-11T01:02:03Z"
+
+AccountDashboardSettings:
+  type: object
+  description: Dashboard preferences shown in the public Account example.
+  properties:
+    rows_per_page:
+      type: [integer, "null"]
+      format: int32
+    skip_cluster_onboarding:
+      type: [boolean, "null"]
+  additionalProperties: true

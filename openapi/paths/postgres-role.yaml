@@ -111,11 +111,25 @@ item:
     operationId: upsertPostgresRole
     tags: [Postgres roles]
     summary: Upsert a Postgres role
-    description: Changes flavor or credentials, or creates the named role. Only `201` is documented; request-body presence remains unconfirmed.
+    description: |
+      Changes flavor or credentials, or creates the named role. The upsert accepts
+      `application`, `postgres`, `user`, or an account role named `u_<account_id>`.
+      Only `201` is documented; request-body presence remains unconfirmed.
     x-docs-url: https://docs.crunchybridge.com/api/postgres-role#update-role
     x-idempotent: true
     x-sensitive: true
     x-disruptive: true
+    parameters:
+      - name: role_name
+        in: path
+        required: true
+        description: Built-in or account role to create or update.
+        schema:
+          oneOf:
+            - type: string
+              enum: [application, postgres, user]
+            - type: string
+              pattern: ^u_[a-z2-7]{25}[aeimquy4]$
     requestBody:
       required: false
       content:

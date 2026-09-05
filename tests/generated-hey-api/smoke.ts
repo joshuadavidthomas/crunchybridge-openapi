@@ -3,14 +3,17 @@ function assert(condition: boolean, message: string) {
 }
 
 import type {
+  Account,
   GetTeamCertificateResponse,
   MetricView,
   QueryCreateRequest,
 } from "../../.generated/hey-api/types.gen.js";
 import {
+  zAccount,
   zClusterBackupToken,
   zEid,
   zMetricView,
+  zPrivateNetworkCidr4,
   zQueryCreateRequest,
   zTeam,
 } from "../../.generated/hey-api/zod.gen.js";
@@ -69,5 +72,17 @@ const teamWithNoBillingAddress = {
 assert(zTeam.safeParse(teamWithNoBillingAddress).success, "team with null billing address rejected");
 assert(!zTeam.safeParse({ ...teamWithNoBillingAddress, billing_address: {} }).success,
   "team with incomplete billing address accepted");
+
+const syntheticAccount: Account = {
+  email: "reader@example.com", name: "Example Reader", has_password: false,
+  has_personal_team: true, has_sso: true, multi_factor_enabled: false, notifications_enabled: true,
+  access_groups: [{ id: "q7dvmz3ukfh5tmg4hy2tqzvama", team_id: "q7dvmz3ukfh5tmg4hy2tqzvama", name: "Example", is_system: false }],
+};
+assert(zAccount.safeParse(syntheticAccount).success, "synthetic account rejected");
+assert(!zAccount.safeParse({ ...syntheticAccount, access_groups: [[]] }).success, "nested account access groups accepted");
+assert(zPrivateNetworkCidr4.safeParse("172.16.0.0/12").success, "private CIDR rejected");
+assert(!zPrivateNetworkCidr4.safeParse("203.0.113.0/20").success, "public CIDR accepted");
+assert(!zPrivateNetworkCidr4.safeParse("10.256.0.0/20").success, "malformed IPv4 accepted");
+assert(!zPrivateNetworkCidr4.safeParse("10.0.0.0/21").success, "small private subnet accepted");
 
 void certificateTypeCheck;

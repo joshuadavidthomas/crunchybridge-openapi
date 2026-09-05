@@ -5,20 +5,12 @@ Event:
     machine-readable format. Historical `data` may not match current resource
     schemas.
   required:
-    - actor_email
-    - actor_id
-    - actor_ip
-    - cluster_id
     - created_at
-    - data
     - description
     - id
     - kind
     - object_id
     - object_kind
-    - previous_properties
-    - request_id
-    - team_id
   properties:
     id:
       allOf:
@@ -35,9 +27,7 @@ Event:
         - $ref: ./common.yaml#/EID
         - type: "null"
     actor_ip:
-      type:
-        - string
-        - "null"
+      type: string
       description: IP address of the actor, if the event has one.
     cluster_id:
       description: EID of the associated cluster, if any.

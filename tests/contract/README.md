@@ -1,6 +1,8 @@
 # Response fixture checks
 
-Run `npm test` to check the committed bundle and validate these fixtures offline. After editing the modular source, run `npm run bundle` first. Run `npm run check:fixtures` to repeat only the fixture tests. CI never contacts Crunchy Bridge or needs an API key.
+Run `npm test` to check the committed bundle and validate these fixtures offline. After editing the modular source, run `npm run bundle` first. Run `npm run check:fixtures` to repeat only the fixture tests. These tests never contact Crunchy Bridge or need an API key.
+
+`operations.yaml` records method/path/status expectations from each public resource page. Update it after reviewing the docs, never from the bundle being tested. Synthetic schema tests cover documented variants; they do not increase the authenticated coverage count.
 
 `fixtures.yaml` holds seven JSON responses captured through Executor from an owner-approved test team. Each record names the operation, observed status, content type, and sanitized body. The test finds that operation's GET response schema in the bundle rather than selecting a schema by hand.
 

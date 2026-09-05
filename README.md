@@ -10,17 +10,15 @@ The spec authors all 84 documented operations across the 24 public API resource 
 
 ## Use the bundle
 
-Use this URL in Executor or another OpenAPI consumer to follow updates on `main`:
+Use this URL in an OpenAPI consumer to follow updates on `main`:
 
 ```text
 https://raw.githubusercontent.com/joshuadavidthomas/crunchybridge-openapi/main/dist/openapi.yaml
 ```
 
-In Executor, use **Re-fetch the spec on save** to load updates from that URL. An integration created from a versioned release URL stays on that version; saving it cannot fetch a newer release.
-
 For a pinned version, use the [v0.1.1 release bundle](https://github.com/joshuadavidthomas/crunchybridge-openapi/releases/download/v0.1.1/openapi.yaml). Releases preserve versioned snapshots; the raw `main` URL follows development. Both contain every schema. The modular source entry point requires the rest of `openapi/`.
 
-This is a preview. Executor imports all 84 operations, and eight authenticated read operations have succeeded on an approved test team. Seven sanitized JSON response fixtures now validate offline; empty cluster and network lists do not verify resource item schemas. See [fixture coverage](tests/contract/README.md) for limits. Start with read-only operations. Configure bearer credentials in the consumer's secret storage, not in the YAML or prompts. Risk extensions do not enforce approvals themselves; keep writes disabled until the consumer's policy is tested. The spec points to the real Crunchy Bridge API.
+This is a preview. Tests check all 84 documented method/path/status combinations and validate seven sanitized authenticated response fixtures. Empty cluster and network lists do not verify resource item schemas. See [fixture coverage](tests/contract/README.md) for limits. The spec targets the real API; keep credentials outside the YAML and require explicit approval before running destructive or billed operations.
 
 [CHANGELOG.md](CHANGELOG.md) records release changes.
 
@@ -86,4 +84,4 @@ To release, update the version in `package.json` and `openapi/openapi.yaml`, ref
 
 ## Known gaps
 
-The Crunchy Bridge docs guarantee that errors contain `message` and `request_id`, but they do not show the full error shape. A live unauthenticated request also returned `code` and `is_transient`; the non-null type of `code` remains unknown. The Account example conflicts with its field table: `access_groups` is marked non-nullable but shown as `null`, and `dashboard_settings` appears only in the example. The current schema records those facts rather than hiding them.
+Token lifetime limits, Event `delay` syntax, some cursor-less list envelopes, and omitted-body behavior still have conflicting or incomplete documentation. Populated cluster responses, invitations, and SSO variants need live validation. See [the contract gaps](SPEC.md#known-gaps-and-risks) for details.

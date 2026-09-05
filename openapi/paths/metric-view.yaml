@@ -12,7 +12,10 @@ item:
     operationId: getMetricView
     tags: [Metric views]
     summary: Get a metric view
-    description: Returns chart series for either a custom `begin`/`end` window or a named `period`.
+    description: |
+      Returns chart series for either a custom `begin`/`end` window or a named
+      `period`. A custom window must last at least one minute, with `end` later
+      than `begin`.
     x-docs-url: https://docs.crunchybridge.com/api/metric-view#get-metric-view
     x-idempotent: true
     parameters:
@@ -28,7 +31,7 @@ item:
       - name: end
         in: query
         required: false
-        description: Custom window end. Send with `begin`; do not send with `period`.
+        description: Custom window end, at least one minute after `begin`. Send with `begin`; do not send with `period`.
         schema: { type: string, format: date-time }
       - name: period
         in: query

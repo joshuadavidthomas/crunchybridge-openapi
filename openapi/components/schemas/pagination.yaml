@@ -3,7 +3,6 @@ CursorPage:
   description: Cursor metadata returned by a paginated list operation.
   required:
     - has_more
-    - next_cursor
   properties:
     has_more:
       type: boolean
