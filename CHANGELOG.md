@@ -18,6 +18,11 @@ and this project attempts to adhere to [Semantic Versioning](https://semver.org/
 
 ## [Unreleased]
 
+### Changed
+
+- Commit `dist/openapi.yaml` so consumers can follow a stable raw `main` URL and re-fetch updates. Release assets remain versioned snapshots.
+- Check bundle freshness in `npm test` without overwriting the committed file. Run `npm run bundle` after changing the modular source.
+
 ## [0.1.1]
 
 ### Fixed

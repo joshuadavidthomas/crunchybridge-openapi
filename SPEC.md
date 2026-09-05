@@ -47,7 +47,7 @@ The OpenAPI document is the source. TypeScript types, Zod schemas, clients, MCP 
 The project will provide:
 
 - Modular OpenAPI 3.1 YAML under `openapi/`.
-- A single-file bundle at `dist/openapi.yaml` produced by the build.
+- A committed single-file bundle at `dist/openapi.yaml`, generated from the modular source and checked for freshness in CI.
 - Reproducible linting and bundling through pinned tooling.
 - Coverage records for every public docs page and documented operation.
 - Source links and visible notes for contradictions or uncertain behavior.
@@ -168,7 +168,8 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 
 - The owner selected MIT for the repository and contract.
 - Publish previews through GitHub releases in `joshuadavidthomas/crunchybridge-openapi`, with notes from the root Keep a Changelog-style `CHANGELOG.md`.
-- Attach the generated `openapi.yaml` to each versioned release; do not commit it.
+- Commit the generated `dist/openapi.yaml` so consumers can re-fetch a stable raw `main` URL. Attach the same bundle to each versioned release for callers who want a pinned snapshot.
+- Use `https://raw.githubusercontent.com/joshuadavidthomas/crunchybridge-openapi/main/dist/openapi.yaml` for Executor integrations that follow updates. A versioned release URL cannot pick up later versions.
 - Use the owner's existing GitGuardian integration rather than adding a second secret scanner. Observe its remote result before claiming a scan passed.
 - Executor is the first agent consumer. The owner imported `v0.1.0` and configured authentication; this session can now call the integration. All 84 operations have catalog entries and readable descriptors.
 - Live verification is limited to the exact owner-approved test team on a work account. Existing resources remain read-only. The team currently has no clusters or networks; do not substitute resources from another team.
@@ -176,9 +177,9 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 
 ### Generated files
 
-- Do not commit `dist/openapi.yaml`; CI and release jobs build it.
-- Do not hand-edit generated clients or schemas.
-- Commit generated artifacts only if a chosen consumer cannot build them itself and a release needs a stable package.
+- Commit `dist/openapi.yaml` with every modular-source change. Generate it with `npm run bundle`; never hand-edit it.
+- `npm test` rebuilds into a temporary directory and fails if the committed bundle differs. It does not silently repair a stale bundle.
+- Do not hand-edit or commit generated TypeScript clients or Zod schemas. They remain downstream interoperability checks.
 - Keep generated-code experiments outside the contract source directories.
 
 ## Current repository state
@@ -195,7 +196,7 @@ Redocly configurable rules require `x-docs-url` and a boolean `x-idempotent` on 
 - [x] Add Redocly lint and bundle commands.
 - [x] Add a pinned npm lockfile.
 - [x] Add GitHub Actions configuration for `npm test`.
-- [x] Keep `dist/` empty with `dist/.gitignore` rather than committing a generated bundle.
+- [x] Commit `dist/openapi.yaml` and verify its freshness in CI so consumers can re-fetch a stable raw URL.
 - [x] Observe the GitHub Actions workflow passing in the remote repository ([initial run](https://github.com/joshuadavidthomas/crunchybridge-openapi/actions/runs/33927904977)).
 - [x] Choose and add a repository/spec license (MIT).
 - [x] Add the shared `X-Request-Id` request parameter.
@@ -866,7 +867,7 @@ This runs:
 
 ```sh
 npm run lint
-npm run bundle
+npm run check:bundle-fresh
 npm run lint:bundle
 npm run check:bundle
 npm run check:fixtures
@@ -877,7 +878,7 @@ npm run check:hey-api
 ### Planned automated gates
 
 - [x] Lint the modular source with Redocly.
-- [x] Bundle to one OpenAPI 3.1 YAML file.
+- [x] Bundle to one OpenAPI 3.1 YAML file and reject a stale committed bundle without overwriting it.
 - [x] Lint the bundle as a standalone document.
 - [x] Assert that the bundle contains no external `$ref` values.
 - [x] Validate all committed schema, parameter, and media-type examples.
@@ -1009,6 +1010,14 @@ Version `1.0.0` requires all of the following:
 - [x] The repository has a license.
 
 ## Progress log
+
+### Re-fetchable bundle
+
+- The owner corrected the publication workflow: Executor must be able to re-fetch a moving source URL without recreating its integration for each release.
+- Removed `dist/.gitignore` and committed `dist/openapi.yaml`. The raw `main` URL follows source updates; release assets retain their role as versioned snapshots.
+- Added `check:bundle-fresh` to the normal test chain. It builds to a temporary directory, compares bytes with the committed bundle, and fails with regeneration instructions instead of overwriting stale output.
+- Updated README usage, contributor steps, and generated-file policy to require source and bundle in the same commit. This supersedes the earlier decision to exclude the bundle.
+- Verified the freshness check rejects a temporary source change without modifying the committed bundle; restored the source and ran the full passing `npm test` chain.
 
 ### Authenticated Executor checks
 
